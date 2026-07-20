@@ -1,0 +1,34 @@
+{
+  "cifar10_train": {
+    "file_name": "data/processed/cifar10_train.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "messages",
+      "images": "images"
+    }
+  },
+  "cifar10_test": {
+    "file_name": "data/processed/cifar10_test.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "messages",
+      "images": "images"
+    }
+  },
+  "cifar100_train": {
+    "file_name": "data/processed/cifar100_train.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "messages",
+      "images": "images"
+    }
+  },
+  "cifar100_test": {
+    "file_name": "data/processed/cifar100_test.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "messages",
+      "images": "images"
+    }
+  }
+}
