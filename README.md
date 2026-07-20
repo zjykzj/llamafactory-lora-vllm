@@ -7,8 +7,8 @@ Based on **Qwen3.5-2B** (multimodal vision-language model), fine-tuned on **CIFA
 ## Pipeline
 
 ```
-CIFAR Data → Build Instructions → LoRA Train → Merge Export → vLLM Serve → Evaluate
-   (PNG)         (ShareGPT JSON)    (llamafactory)   (export)     (OpenAI API)  (accuracy)
+CIFAR Data → Build Instructions → LoRA Train ─┬─ LLaMA API ──→ Evaluate
+   (PNG)         (ShareGPT JSON)    (llamafactory) └─ Export → vLLM → Evaluate
 ```
 
 ## Project Structure
@@ -17,67 +17,72 @@ CIFAR Data → Build Instructions → LoRA Train → Merge Export → vLLM Serve
 ├── configs/          # LLamaFactory YAML configs + dataset registry
 ├── data/             # CIFAR download & instruction building scripts
 ├── serve/            # vLLM serve startup
-├── eval/             # Evaluation via vLLM OpenAI-compatible API
+├── eval/             # Evaluation via OpenAI-compatible API
 ├── docs/             # LoRA/QLoRA, vLLM, multimodal format documentation
 └── README.md
 ```
 
 ## Quick Start
 
-### 1. llamafactory 安装
+### 1. Install LLaMA Factory
 
 ```bash
 git clone --depth 1 https://github.com/hiyouga/LLaMA-Factory.git
 cd LLaMA-Factory && pip install -e ".[torch,metrics]" && cd ..
 ```
 
-### 2. 数据准备
+### 2. Data Preparation
 
 ```bash
-# 下载 CIFAR10 图片（每类 200 张，快速实验）
+# Download CIFAR10 images (200 per class for quick experiments)
 python data/download_cifar.py --dataset cifar10 --subset 200
 
-# 构建 ShareGPT 格式训练数据
+# Build ShareGPT-format instruction data
 python data/build_instructions.py --dataset cifar10
 ```
 
-### 3. LoRA 训练
+### 3. LoRA Training
 
 ```bash
-# 注册数据集
+# Register dataset with LLaMA Factory
 cp configs/dataset_info.json LLaMA-Factory/data/
 
-# 使用 llamafactory-cli train 命令训练
+# Train with llamafactory-cli
 llamafactory-cli train configs/cifar10_lora_train.yaml
 ```
 
-### 4. 模型导出/合并
+### 4. Inference (two options)
 
-训练完成后，使用 `llamafactory-cli export` 命令将 LoRA adapter 合并到基座模型：
+#### Option A: LLaMA Factory API (LoRA direct, no merge needed, quick validation)
+
+LLaMA Factory's `ChatModel` loads LoRA adapters directly for inference without merging.
 
 ```bash
-llamafactory-cli export -c configs/cifar10_merge.yaml
+# Start OpenAI-compatible API server (port 8000)
+llamafactory-cli api configs/cifar10_infer.yaml
 ```
 
-合并后的完整模型在 `models/merged/cifar10/` 目录。
+#### Option B: vLLM (merge first, higher throughput, production)
 
-### 5. vLLM 部署
+Merge LoRA first, then deploy with vLLM for maximum inference throughput.
 
 ```bash
-pip install vllm
+# Merge LoRA adapter into base model
+llamafactory-cli export configs/cifar10_merge.yaml
 
+# Start vLLM server
 bash serve/serve.sh models/merged/cifar10
 ```
 
-服务启动后提供 OpenAI 兼容 API：`http://localhost:8000/v1`
+### 5. Evaluation
 
-### 6. 评估
+Both inference methods provide OpenAI-compatible APIs (`http://localhost:8000/v1`), so the same eval scripts work for both.
 
 ```bash
-# CIFAR10 评估（100 张快速验证）
+# CIFAR10 evaluation (100 samples for quick validation)
 python eval/eval_cifar10.py --max-samples 100
 
-# CIFAR100 评估
+# CIFAR100 evaluation
 python eval/eval_cifar100.py --max-samples 200
 ```
 
