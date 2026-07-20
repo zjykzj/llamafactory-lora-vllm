@@ -84,15 +84,17 @@ def build_dataset(dataset_name: str, max_train: int | None = None) -> None:
             print(f"  Skip {split}: directory not found ({split_dir})")
             continue
 
-        # Collect image paths and labels
+        # Collect image paths and labels (use relative paths for LLaMA Factory compatibility)
         samples = []
+        relative_dir = f"images/{dataset_name}/{split}"
         for fname in sorted(os.listdir(split_dir)):
             if not fname.endswith(".png"):
                 continue
             # Filename format: {label_id}_{class_name}_{index}.png
             parts = fname.split("_", 1)
             label_id = int(parts[0])
-            samples.append((str(split_dir / fname), label_id, class_mapping[str(label_id)]))
+            img_path = f"{relative_dir}/{fname}"
+            samples.append((img_path, label_id, class_mapping[str(label_id)]))
 
         random.shuffle(samples)
 
