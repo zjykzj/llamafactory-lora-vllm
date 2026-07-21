@@ -16,9 +16,10 @@ CIFAR Data → Build Instructions → LoRA Train ─┬─ LLaMA API ──→ E
 ```
 ├── configs/          # LLamaFactory YAML configs + dataset registry
 ├── data/             # CIFAR download & instruction building scripts
-├── serve/            # vLLM serve startup
+├── serve/            # vLLM serve startup (LoRA & merged modes)
 ├── eval/             # Evaluation via OpenAI-compatible API
-├── docs/             # LoRA/QLoRA, vLLM, multimodal format documentation
+├── docs/             # LoRA/QLoRA, vLLM, training config, multimodal format
+├── CLAUDE.md         # AI assistant guidance
 └── README.md
 ```
 
@@ -62,17 +63,20 @@ LLaMA Factory's `ChatModel` loads LoRA adapters directly for inference without m
 llamafactory-cli api configs/cifar10_infer.yaml
 ```
 
-#### Option B: vLLM (merge first, higher throughput, production)
+#### Option B: vLLM (high throughput, production)
 
-Merge LoRA first, then deploy with vLLM for maximum inference throughput.
+Two modes — LoRA direct (recommended) or merged model.
 
 ```bash
-# Merge LoRA adapter into base model
-llamafactory-cli export configs/cifar10_merge.yaml
+# LoRA direct mode (no merge needed, recommended)
+bash serve/serve.sh --lora models/lora/cifar10
 
-# Start vLLM server
-bash serve/serve.sh models/merged/cifar10
+# Or: merge first, then serve
+llamafactory-cli export configs/cifar10_merge.yaml
+bash serve/serve.sh --model models/merged/cifar10
 ```
+
+See `serve/README.md` and `docs/vllm_deployment.md` for details, including multi-adapter setup and ModelScope configuration.
 
 ### 5. Evaluation
 
@@ -94,6 +98,10 @@ python eval/eval_cifar100.py --max-samples 200
 | vLLM Serve | ~6 GB |
 
 Qwen3.5-2B only 2B parameters, trainable on single consumer GPU (RTX 3060+).
+
+### ModelScope Users
+
+If HuggingFace Hub is unreachable, set `export USE_MODELSCOPE_HUB=1` and replace `model_name_or_path` with a local ModelScope-downloaded model directory.
 
 ## References
 
