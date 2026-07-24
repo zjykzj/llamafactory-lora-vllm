@@ -19,16 +19,18 @@ CIFAR Data → Build Instructions → LoRA Train → (Merge optional) → Serve 
 python data/download_cifar.py --dataset cifar10 --subset 200
 python data/build_instructions.py --dataset cifar10
 
-# Train (dataset_info.json must be copied to LLaMA-Factory/data/ first)
-llamafactory-cli train configs/cifar10_lora_train.yaml
+# Train & merge — use the wrapper script (switches models without editing YAML)
+bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B
+bash scripts/run.sh merge --dataset cifar10 --model Qwen/Qwen3.5-0.8B
 
-# Merge LoRA into base model (required for vLLM merged mode)
+# Or call llamafactory-cli directly (YAML defaults must match your model)
+llamafactory-cli train configs/cifar10_lora_train.yaml
 llamafactory-cli export configs/cifar10_merge.yaml
 
 # Serve — three options
 llamafactory-cli api configs/cifar10_infer.yaml          # LLaMA Factory API (debug, no concurrency)
 bash serve/serve.sh                                      # vLLM + merged model (default)
-bash serve/serve.sh --lora models/lora/cifar10           # vLLM + LoRA adapter (recommended, no merge)
+bash serve/serve.sh --lora models/lora/cifar10_qwen3.5-0.8b  # vLLM + LoRA adapter (recommended)
 
 # Eval (all backends expose OpenAI-compatible /v1/chat/completions)
 python eval/eval_cifar10.py --max-samples 100 --model cifar10

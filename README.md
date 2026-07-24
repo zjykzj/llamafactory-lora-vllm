@@ -44,13 +44,23 @@ python data/build_instructions.py --dataset cifar10
 
 ### 3. LoRA Training
 
+Use `scripts/run.sh` to train — specify the model with `--model` and the script handles paths automatically:
+
 ```bash
 # Register dataset with LLaMA Factory
 cp configs/dataset_info.json LLaMA-Factory/data/
 
-# Train with llamafactory-cli
-llamafactory-cli train configs/cifar10_lora_train.yaml
+# Train (output auto-saved to models/lora/cifar10_qwen3.5-0.8b)
+bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B
+
+# Try a different model by changing --model only
+bash scripts/run.sh train --dataset cifar100 --model Qwen/Qwen3.5-2B
+
+# Pass extra training args after --
+bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs 5
 ```
+
+> **Tip:** `scripts/run.sh` is a thin wrapper — it simply calls `llamafactory-cli` with `--model_name_or_path` and `--output_dir` overrides. You can still call `llamafactory-cli train configs/cifar10_lora_train.yaml` directly if you prefer editing YAML by hand.
 
 ### 4. Inference (two options)
 
@@ -69,11 +79,11 @@ Two modes — LoRA direct (recommended) or merged model.
 
 ```bash
 # LoRA direct mode (no merge needed, recommended)
-bash serve/serve.sh --lora models/lora/cifar10
+bash serve/serve.sh --lora models/lora/cifar10_qwen3.5-0.8b
 
 # Or: merge first, then serve
-llamafactory-cli export configs/cifar10_merge.yaml
-bash serve/serve.sh --model models/merged/cifar10
+bash scripts/run.sh merge --dataset cifar10 --model Qwen/Qwen3.5-0.8B
+bash serve/serve.sh --model models/merged/cifar10_qwen3.5-0.8b
 ```
 
 See `serve/README.md` and `docs/vllm_deployment.md` for details, including multi-adapter setup and ModelScope configuration.
