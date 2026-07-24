@@ -64,15 +64,17 @@ llamafactory-cli export configs/cifar10_merge.yaml
 
 # 步骤 2：启动 vLLM
 vllm serve models/merged/cifar10 \
+    --served-model-name cifar10 \
     --host 0.0.0.0 \
     --port 8000 \
     --trust-remote-code
 ```
 
-或使用本项目的脚本：
+或使用本项目的脚本（自动取目录 basename 作为模型名）：
 
 ```bash
-bash serve/serve.sh models/merged/cifar10
+bash serve/serve.sh --model models/merged/cifar10
+# 启动后显示: Use --model cifar10 when running eval scripts.
 ```
 
 ### 验证
@@ -93,6 +95,7 @@ curl http://localhost:8000/v1/models
 | `--gpu-memory-utilization` | GPU 显存使用比例 | `0.9`（默认） |
 | `--max-model-len` | 最大序列长度 | 根据模型设置 |
 | `--tensor-parallel-size` | 多卡并行 | `1`（单卡） |
+| `--served-model-name` | 对外暴露的模型名 | 目录 basename（如 `cifar10`） |
 | `--enable-lora` | 启用 LoRA 支持 | LoRA 模式必需 |
 | `--lora-modules` | LoRA 适配器映射 | `name=path` 格式 |
 
@@ -105,7 +108,7 @@ client = OpenAI(base_url="http://localhost:8000/v1", api_key="not-needed")
 
 # 文本请求
 response = client.chat.completions.create(
-    model="model",  # 合并模式用任意值，LoRA 模式用 adapter 名称
+    model="cifar10",  # 合并模式用 served-model-name，LoRA 模式用 adapter 名称
     messages=[{"role": "user", "content": "Hello"}],
 )
 ```

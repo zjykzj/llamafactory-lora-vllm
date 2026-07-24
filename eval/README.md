@@ -21,7 +21,7 @@ from openai import OpenAI
 client = OpenAI(base_url="http://localhost:8000/v1", api_key="not-needed")
 
 response = client.chat.completions.create(
-    model="model",
+    model="cifar10",  # 对应 serve 启动时显示的 Model name
     messages=[{
         "role": "user",
         "content": [
@@ -42,6 +42,9 @@ python eval/eval_cifar10.py
 
 # 仅测试 100 张（快速验证）
 python eval/eval_cifar10.py --max-samples 100
+
+# 指定模型名（与 serve 启动时显示的 Model name 一致）
+python eval/eval_cifar10.py --model cifar10_qwen3.5-0.8b --max-samples 100
 
 # CIFAR100 测试
 python eval/eval_cifar100.py --max-samples 200

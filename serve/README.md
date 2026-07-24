@@ -92,8 +92,13 @@ bash serve/serve.sh
 # 指定模型
 bash serve/serve.sh --model models/merged/cifar100
 
+# 模型名自动取目录 basename（如 cifar100），eval 时用：
+#   python eval/eval_cifar100.py --model cifar100
+
 # 等同于直接调用 vLLM
-vllm serve models/merged/cifar10 --host 0.0.0.0 --port 8000 --trust-remote-code
+vllm serve models/merged/cifar10 \
+    --served-model-name cifar10 \
+    --host 0.0.0.0 --port 8000 --trust-remote-code
 ```
 
 ---

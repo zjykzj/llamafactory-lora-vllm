@@ -181,13 +181,20 @@ else
     echo "=========================================="
     echo " vLLM Server (merged model)"
     echo "=========================================="
-    echo "  Model:  $MODEL_PATH"
-    echo "  Host:   $HOST"
-    echo "  Port:   $PORT"
-    echo "  GPU:    $GPU_MEMORY"
+    MODEL_NAME="$(basename "$MODEL_PATH")"
+
+    echo "  Model path:  $MODEL_PATH"
+    echo "  Model name:  $MODEL_NAME"
+    echo "  Host:        $HOST"
+    echo "  Port:        $PORT"
+    echo "  GPU:         $GPU_MEMORY"
     echo "=========================================="
+    echo ""
+    echo "Use --model $MODEL_NAME when running eval scripts."
+    echo ""
 
     vllm serve "$MODEL_PATH" \
+        --served-model-name "$MODEL_NAME" \
         --host "$HOST" \
         --port "$PORT" \
         --trust-remote-code \
