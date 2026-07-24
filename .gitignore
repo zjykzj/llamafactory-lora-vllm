@@ -267,8 +267,8 @@ cython_debug/
 #.idea/
 
 # Project data and models
-data/images/
-data/processed/
-data/raw/
-models/
+data/images
+data/processed
+data/raw
+models
 
