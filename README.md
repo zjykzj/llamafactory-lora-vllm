@@ -1,16 +1,16 @@
 # llamafactory-lora-vllm
 
-Workflow for LoRA fine-tuning with LLamaFactory and high-performance inference deployment via vLLM.
+> Workflow for LoRA fine-tuning with LLamaFactory and high-performance inference deployment via vLLM.
 
 Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/qwen3.5.md](docs/qwen3.5.md) for model configuration.
-
-All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning.
 
 | Model | CIFAR10 (Zero-shot) | CIFAR10 (LoRA) | CIFAR100 (Zero-shot) | CIFAR100 (LoRA) |
 |-------|---------------------|----------------|----------------------|-----------------|
 | Qwen3.5-0.8B | 91.18% | 95.39% | 52.71% | 82.07% |
-| Qwen3.5-2B | 96.47% | 97.58% | 75.67% | 88.22% |
-| Qwen3.5-4B | 96.44% | — | 77.83% | — |
+| Qwen3.5-2B | **96.47%** | **97.58%** | 75.67% | **88.22%** |
+| Qwen3.5-4B | 96.44% | — | **77.83%** | — |
+
+*All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning.*
 
 ## Pipeline
 
@@ -28,7 +28,7 @@ CIFAR Data → Build Instructions → LoRA Train ─┬─ LLaMA API ───�
 ├── data/             # CIFAR download & instruction building scripts
 ├── serve/            # vLLM serve startup (LoRA & merged modes)
 ├── eval/             # Evaluation via OpenAI-compatible API
-├── docs/             # LoRA/QLoRA, vLLM, training config, multimodal format
+├── docs/             # Model config, LoRA/QLoRA, vLLM, training, multimodal format
 ├── CLAUDE.md         # AI assistant guidance
 └── README.md
 ```
@@ -71,6 +71,8 @@ bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_t
 ```
 
 > **Tip:** `scripts/run.sh` is a thin wrapper — it simply calls `llamafactory-cli` with `--model_name_or_path` and `--output_dir` overrides. You can still call `llamafactory-cli train configs/cifar10_lora_train.yaml` directly if you prefer editing YAML by hand.
+>
+> **ModelScope:** If HuggingFace Hub is unreachable, set `export USE_MODELSCOPE_HUB=1` and replace `model_name_or_path` with a local ModelScope-downloaded model directory.
 
 ### 4. Inference (two options)
 
@@ -140,10 +142,6 @@ Training and deployment use **separate Python environments** due to conflicting 
 | Transformers | 5.10.2 |
 
 > **Why separate environments?** LLaMA Factory and vLLM have incompatible dependency ranges (different CUDA toolkit versions and Transformers major versions). Keeping them isolated avoids version conflicts.
-
-### ModelScope Users
-
-If HuggingFace Hub is unreachable, set `export USE_MODELSCOPE_HUB=1` and replace `model_name_or_path` with a local ModelScope-downloaded model directory.
 
 ## References
 

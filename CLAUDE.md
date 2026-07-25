@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-LoRA fine-tuning pipeline for Qwen3.5-0.8B/2B (multimodal VLM) on CIFAR10/CIFAR100 classification, with vLLM inference deployment. Based on [LLaMA Factory](https://github.com/hiyouga/LLaMA-Factory).
+> Workflow for LoRA fine-tuning with LLaMA Factory and high-performance inference deployment via vLLM.
+
+Fine-tuned on CIFAR10/CIFAR100 image classification tasks. Supports Qwen3.5-0.8B/2B/4B. See [docs/qwen3.5.md](docs/qwen3.5.md) for model configuration.
+
+Based on [LLaMA Factory](https://github.com/hiyouga/LLaMA-Factory) and [vLLM](https://github.com/vllm-project/vllm). Models from [ModelScope](https://modelscope.cn/organization/qwen).
 
 ## Pipeline
 
@@ -21,6 +25,7 @@ python data/build_instructions.py --dataset cifar10
 
 # Train & merge — use the wrapper script (switches models without editing YAML)
 bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B
+bash scripts/run.sh train --dataset cifar100 --model Qwen/Qwen3.5-2B
 bash scripts/run.sh merge --dataset cifar10 --model Qwen/Qwen3.5-0.8B
 
 # Or call llamafactory-cli directly (YAML defaults must match your model)
@@ -35,6 +40,11 @@ bash serve/serve.sh --lora models/lora/cifar10_qwen3.5-0.8b  # vLLM + LoRA adapt
 # Eval (all backends expose OpenAI-compatible /v1/chat/completions)
 python eval/eval_cifar10.py --max-samples 100 --model cifar10
 python eval/eval_cifar100.py --max-samples 100 --model cifar100
+
+# Zero-shot baseline (base model without fine-tuning)
+bash serve/serve.sh --model /root/.cache/modelscope/Qwen/Qwen3.5-2B
+python eval/eval_cifar10.py --model Qwen3.5-2B
+
 python eval/bench.py --num-samples 100  # latency & throughput benchmark
 ```
 
@@ -48,7 +58,7 @@ All YAML configs live in `configs/`. Three config types per dataset:
 | `*_infer.yaml` | LLaMA Factory API inference | `model_name_or_path`, `adapter_name_or_path`, `infer_backend` (huggingface/vllm/sglang) |
 | `*_merge.yaml` | Export/merge LoRA into base model | `adapter_name_or_path`, `export_dir`, `export_device` |
 
-`model_name_or_path` uses HuggingFace model IDs by default. For ModelScope users, set `export USE_MODELSCOPE_HUB=1`.
+`model_name_or_path` uses ModelScope model IDs (e.g. `Qwen/Qwen3.5-2B`). For HuggingFace users, omit `USE_MODELSCOPE_HUB`.
 
 ## Training performance tuning
 
@@ -60,11 +70,12 @@ Effective batch = `per_device_train_batch_size × gradient_accumulation_steps ×
 - **LLaMA Factory API** loads LoRA adapter in-process, single-request only, good for quick validation.
 - **vLLM native** supports `--enable-lora --lora-modules name=path` to load LoRA adapters directly without merging. Multiple adapters can be loaded simultaneously, selected by the `model` field in each request.
 - **vLLM merged** requires `llamafactory-cli export` first, use when adapters won't change.
-- **ModelScope fallback**: when HuggingFace is unreachable, set `USE_MODELSCOPE_HUB=1` and point `model_name_or_path` to a local ModelScope-downloaded model directory.
-- **Template `qwen3_5_nothink`** suppresses Qwen's reasoning tags — required for classification tasks.
+- **ModelScope default**: models are loaded from ModelScope by default (`USE_MODELSCOPE_HUB=1`). For HuggingFace, omit the env var.
+- **Template `qwen3_5_nothink`** suppresses Qwen's reasoning tags — required for classification tasks. Eval scripts pass `enable_thinking: False` via `extra_body` to disable thinking on base models.
 
 ## Docs
 
+- `docs/qwen3.5.md` — Qwen3.5 model configuration and architecture notes
 - `docs/lora_qlora.md` — LoRA/QLoRA theory and parameter guide
 - `docs/multimodal_dataset.md` — ShareGPT-format multimodal data for LLaMA Factory
 - `docs/vllm_deployment.md` — vLLM deployment options (LoRA and merged)
