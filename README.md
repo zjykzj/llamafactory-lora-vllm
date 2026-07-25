@@ -2,7 +2,15 @@
 
 Workflow for LoRA fine-tuning with LLamaFactory and high-performance inference deployment via vLLM.
 
-Based on **Qwen3.5-0.8B / 2B** (multimodal vision-language model), fine-tuned on **CIFAR10 / CIFAR100** image classification tasks.
+Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/qwen3.5.md](docs/qwen3.5.md) for model configuration.
+
+All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning.
+
+| Model | CIFAR10 (Zero-shot) | CIFAR10 (LoRA) | CIFAR100 (Zero-shot) | CIFAR100 (LoRA) |
+|-------|---------------------|----------------|----------------------|-----------------|
+| Qwen3.5-0.8B | 91.18% | 95.39% | 52.71% | 82.07% |
+| Qwen3.5-2B | 96.47% | 97.58% | 75.67% | 88.22% |
+| Qwen3.5-4B | 96.44% | — | 77.83% | — |
 
 ## Pipeline
 

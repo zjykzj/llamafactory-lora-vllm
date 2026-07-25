@@ -50,6 +50,7 @@ def classify_image(
         ],
         max_tokens=32,
         temperature=0.0,
+        extra_body={"chat_template_kwargs": {"enable_thinking": False}},
     )
     return response.choices[0].message.content.strip().lower()
 
