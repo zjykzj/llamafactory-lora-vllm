@@ -2,19 +2,21 @@
 
 Workflow for LoRA fine-tuning with LLamaFactory and high-performance inference deployment via vLLM.
 
-Based on **Qwen3.5-2B** (multimodal vision-language model), fine-tuned on **CIFAR10 / CIFAR100** image classification tasks.
+Based on **Qwen3.5-0.8B / 2B** (multimodal vision-language model), fine-tuned on **CIFAR10 / CIFAR100** image classification tasks.
 
 ## Pipeline
 
 ```
-CIFAR Data → Build Instructions → LoRA Train ─┬─ LLaMA API ──→ Evaluate
-   (PNG)         (ShareGPT JSON)    (llamafactory) └─ Export → vLLM → Evaluate
+CIFAR Data → Build Instructions → LoRA Train ─┬─ LLaMA API ────────────→ Evaluate
+   (PNG)         (ShareGPT JSON)               ├─ vLLM + LoRA (direct) → Evaluate
+                                               └─ Merge → vLLM ────────→ Evaluate
 ```
 
 ## Project Structure
 
 ```
 ├── configs/          # LLamaFactory YAML configs + dataset registry
+├── scripts/          # Train & merge wrapper (model-agnostic)
 ├── data/             # CIFAR download & instruction building scripts
 ├── serve/            # vLLM serve startup (LoRA & merged modes)
 ├── eval/             # Evaluation via OpenAI-compatible API
@@ -57,7 +59,7 @@ bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B
 bash scripts/run.sh train --dataset cifar100 --model Qwen/Qwen3.5-2B
 
 # Pass extra training args after --
-bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs 5
+bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs=5
 ```
 
 > **Tip:** `scripts/run.sh` is a thin wrapper — it simply calls `llamafactory-cli` with `--model_name_or_path` and `--output_dir` overrides. You can still call `llamafactory-cli train configs/cifar10_lora_train.yaml` directly if you prefer editing YAML by hand.
@@ -90,14 +92,17 @@ See `serve/README.md` and `docs/vllm_deployment.md` for details, including multi
 
 ### 5. Evaluation
 
-Both inference methods provide OpenAI-compatible APIs (`http://localhost:8000/v1`), so the same eval scripts work for both.
+All inference methods provide OpenAI-compatible APIs (`http://localhost:8000/v1`), so the same eval scripts work for all backends.
 
 ```bash
-# CIFAR10 evaluation (100 samples for quick validation)
+# CIFAR10 accuracy evaluation (100 samples for quick validation)
 python eval/eval_cifar10.py --max-samples 100
 
-# CIFAR100 evaluation
+# CIFAR100 accuracy evaluation
 python eval/eval_cifar100.py --max-samples 200
+
+# Benchmark latency & throughput
+python eval/bench.py --num-samples 100
 ```
 
 ## Hardware Requirements
@@ -107,7 +112,7 @@ python eval/eval_cifar100.py --max-samples 200
 | LoRA Train | ~8 GB |
 | vLLM Serve | ~6 GB |
 
-Qwen3.5-2B only 2B parameters, trainable on single consumer GPU (RTX 3060+).
+0.8B and 2B variants both trainable on single consumer GPU (RTX 3060+). The 0.8B model requires less VRAM (~4 GB train / ~3 GB serve).
 
 ### ModelScope Users
 

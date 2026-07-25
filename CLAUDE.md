@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-LoRA fine-tuning pipeline for Qwen3.5-2B (multimodal VLM) on CIFAR10/CIFAR100 classification, with vLLM inference deployment. Based on [LLaMA Factory](https://github.com/hiyouga/LLaMA-Factory).
+LoRA fine-tuning pipeline for Qwen3.5-0.8B/2B (multimodal VLM) on CIFAR10/CIFAR100 classification, with vLLM inference deployment. Based on [LLaMA Factory](https://github.com/hiyouga/LLaMA-Factory).
 
 ## Pipeline
 
@@ -34,6 +34,8 @@ bash serve/serve.sh --lora models/lora/cifar10_qwen3.5-0.8b  # vLLM + LoRA adapt
 
 # Eval (all backends expose OpenAI-compatible /v1/chat/completions)
 python eval/eval_cifar10.py --max-samples 100 --model cifar10
+python eval/eval_cifar100.py --max-samples 100 --model cifar100
+python eval/bench.py --num-samples 100  # latency & throughput benchmark
 ```
 
 ## Config file conventions
