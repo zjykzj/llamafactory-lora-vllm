@@ -60,7 +60,7 @@ Use `scripts/run.sh` to train — specify the model with `--model` and the scrip
 # Register dataset with LLaMA Factory
 cp configs/dataset_info.json LLaMA-Factory/data/
 
-# Train (output auto-saved to models/lora/cifar10_qwen3.5-0.8b)
+# Train (output auto-saved to models/lora/cifar10_qwen3.5-0.8B)
 bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B
 
 # Try a different model by changing --model only
@@ -91,11 +91,11 @@ Two modes — LoRA direct (recommended) or merged model.
 
 ```bash
 # LoRA direct mode (no merge needed, recommended)
-bash serve/serve.sh --lora models/lora/cifar10_qwen3.5-0.8b
+bash serve/serve.sh --lora models/lora/cifar10_qwen3.5-0.8B
 
 # Or: merge first, then serve
 bash scripts/run.sh merge --dataset cifar10 --model Qwen/Qwen3.5-0.8B
-bash serve/serve.sh --model models/merged/cifar10_qwen3.5-0.8b
+bash serve/serve.sh --model models/merged/cifar10_qwen3.5-0.8B
 ```
 
 See `serve/README.md` and `docs/vllm_deployment.md` for details, including multi-adapter setup and ModelScope configuration.

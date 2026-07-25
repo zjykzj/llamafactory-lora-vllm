@@ -46,7 +46,7 @@ def main() -> None:
     parser.add_argument(
         "--model", default="cifar100",
         help="Model name as served by vLLM. For merged mode this is the "
-             "directory basename (e.g. cifar100, cifar100_qwen3.5-0.8b). "
+             "directory basename (e.g. cifar100, cifar100_qwen3.5-0.8B). "
              "For LoRA mode this is the adapter name shown at startup."
     )
     parser.add_argument(

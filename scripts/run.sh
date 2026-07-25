@@ -119,9 +119,9 @@ fi
 
 # ── Derive paths from model name ───────────────────────────
 
-# Extract short name: "Qwen/Qwen3.5-0.8B" → "qwen3.5-0.8b"
-# For local paths: "/path/to/Qwen3.5-0.8B" → "qwen3.5-0.8b"
-MODEL_SHORT=$(basename "$MODEL" | tr '[:upper:]' '[:lower:]')
+# Extract short name: "Qwen/Qwen3.5-0.8B" → "qwen3.5-0.8B"
+# For local paths: "/path/to/Qwen3.5-0.8B" → "qwen3.5-0.8B"
+MODEL_SHORT=$(basename "$MODEL" | tr '[:upper:]' '[:lower:]' | sed 's/b$/B/')
 
 OUTPUT_DIR="models/lora/${DATASET}_${MODEL_SHORT}"
 EXPORT_DIR="models/merged/${DATASET}_${MODEL_SHORT}"

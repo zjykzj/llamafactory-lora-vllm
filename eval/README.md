@@ -44,7 +44,7 @@ python eval/eval_cifar10.py
 python eval/eval_cifar10.py --max-samples 100
 
 # 指定模型名（与 serve 启动时显示的 Model name 一致）
-python eval/eval_cifar10.py --model cifar10_qwen3.5-0.8b --max-samples 100
+python eval/eval_cifar10.py --model cifar10_qwen3.5-0.8B --max-samples 100
 
 # CIFAR100 测试
 python eval/eval_cifar100.py --max-samples 200
@@ -62,7 +62,7 @@ python eval/eval_cifar10.py --base-url http://127.0.0.1:8080/v1
 python eval/bench.py
 
 # 指定模型和样本数
-python eval/bench.py --model cifar10_qwen3.5-0.8b --num-samples 100
+python eval/bench.py --model cifar10_qwen3.5-0.8B --num-samples 100
 
 # 跨后端对比
 python eval/bench.py --base-url http://localhost:8000/v1   # vLLM

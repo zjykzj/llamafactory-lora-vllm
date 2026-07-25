@@ -35,7 +35,7 @@ llamafactory-cli export configs/cifar10_merge.yaml
 # Serve — three options
 llamafactory-cli api configs/cifar10_infer.yaml          # LLaMA Factory API (debug, no concurrency)
 bash serve/serve.sh                                      # vLLM + merged model (default)
-bash serve/serve.sh --lora models/lora/cifar10_qwen3.5-0.8b  # vLLM + LoRA adapter (recommended)
+bash serve/serve.sh --lora models/lora/cifar10_qwen3.5-0.8B  # vLLM + LoRA adapter (recommended)
 
 # Eval (all backends expose OpenAI-compatible /v1/chat/completions)
 python eval/eval_cifar10.py --max-samples 100 --model cifar10
