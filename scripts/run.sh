@@ -12,7 +12,8 @@
 # All other params (lora_rank, batch_size, etc.) stay in the YAML.
 #
 # Extra args after -- are passed through to llamafactory-cli:
-#   bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs 5
+#   bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs=5
+# Note: use --key=value format (NOT --key value) for passthrough args.
 # ============================================================
 
 set -euo pipefail
@@ -39,8 +40,8 @@ Examples:
   bash scripts/run.sh train --dataset cifar100 --model Qwen/Qwen3.5-2B
   bash scripts/run.sh merge --dataset cifar10 --model Qwen/Qwen3.5-0.8B
 
-  # Pass extra training args after --
-  bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs 5
+  # Pass extra training args after -- (use key=value format)
+  bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs=5
 
 Auto-derived paths (no need to specify):
   train → output_dir:   models/lora/{dataset}_{model_short}
@@ -125,7 +126,33 @@ MODEL_SHORT=$(basename "$MODEL" | tr '[:upper:]' '[:lower:]')
 OUTPUT_DIR="models/lora/${DATASET}_${MODEL_SHORT}"
 EXPORT_DIR="models/merged/${DATASET}_${MODEL_SHORT}"
 
-# ── Execute ────────────────────────────────────────────────
+# ── Convert passthrough args: --key value → key=value ─────────
+# OmegaConf.from_cli only supports key=value format (dots in values
+# break --key value; --key=value keeps the -- in the key name).
+CONVERTED_ARGS=()
+i=0
+while [ $i -lt ${#PASSTHRU_ARGS[@]} ]; do
+    arg="${PASSTHRU_ARGS[$i]}"
+    if [[ "$arg" == --* ]] && [[ "$arg" != *=* ]] && [ $((i+1)) -lt ${#PASSTHRU_ARGS[@]} ]; then
+        next="${PASSTHRU_ARGS[$i+1]}"
+        if [[ "$next" != -* ]]; then
+            key="${arg#--}"  # strip leading --
+            CONVERTED_ARGS+=("$key=$next")
+            i=$((i+2))
+            continue
+        fi
+    fi
+    # Strip -- prefix from flags (--do_train → do_train) and
+    # --key=value → key=value
+    if [[ "$arg" == --* ]]; then
+        CONVERTED_ARGS+=("${arg#--}")
+    else
+        CONVERTED_ARGS+=("$arg")
+    fi
+    i=$((i+1))
+done
+
+# ── Execute ──────────────────────────────────────────────────
 
 cd "$PROJECT_ROOT"
 
@@ -145,10 +172,13 @@ case "$COMMAND" in
         echo "  Output:    $OUTPUT_DIR"
         echo "=========================================="
 
+        # Note: use key=value format (not --key value) to keep dots in
+        # model names like Qwen3.5-0.8B — OmegaConf.from_cli otherwise
+        # interprets dots in values as nested key separators.
         llamafactory-cli train "$YAML" \
-            --model_name_or_path "$MODEL" \
-            --output_dir "$OUTPUT_DIR" \
-            "${PASSTHRU_ARGS[@]}"
+            model_name_or_path="$MODEL" \
+            output_dir="$OUTPUT_DIR" \
+            "${CONVERTED_ARGS[@]}"
         ;;
 
     merge)
@@ -175,10 +205,11 @@ case "$COMMAND" in
         echo "  Export:    $EXPORT_DIR"
         echo "=========================================="
 
+        # Note: use key=value format to preserve dots in model paths
         llamafactory-cli export "$YAML" \
-            --model_name_or_path "$MODEL" \
-            --adapter_name_or_path "$ADAPTER_DIR" \
-            --export_dir "$EXPORT_DIR" \
-            "${PASSTHRU_ARGS[@]}"
+            model_name_or_path="$MODEL" \
+            adapter_name_or_path="$ADAPTER_DIR" \
+            export_dir="$EXPORT_DIR" \
+            "${CONVERTED_ARGS[@]}"
         ;;
 esac
