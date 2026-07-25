@@ -105,14 +105,33 @@ python eval/eval_cifar100.py --max-samples 200
 python eval/bench.py --num-samples 100
 ```
 
-## Hardware Requirements
+## Environment
 
-| Stage | Min GPU Memory |
-|-------|---------------|
-| LoRA Train | ~8 GB |
-| vLLM Serve | ~6 GB |
+Training and deployment use **separate Python environments** due to conflicting dependency requirements (LLaMA Factory vs vLLM).
 
-0.8B and 2B variants both trainable on single consumer GPU (RTX 3060+). The 0.8B model requires less VRAM (~4 GB train / ~3 GB serve).
+### Training Environment
+
+| Package | Version |
+|---------|---------|
+| Python | 3.12.13 |
+| LLaMA Factory | 0.9.5 |
+| PyTorch | 2.11.0+cu128 |
+| CUDA | 12.8 |
+| Transformers | 5.6.0 |
+| PEFT | 0.18.1 |
+| Accelerate | 1.11.0 |
+
+### Deployment Environment
+
+| Package | Version |
+|---------|---------|
+| Python | 3.12.3 |
+| vLLM | 0.20.0 |
+| PyTorch | 2.11.0+cu130 |
+| CUDA | 13.0 |
+| Transformers | 5.10.2 |
+
+> **Why separate environments?** LLaMA Factory and vLLM have incompatible dependency ranges (different CUDA toolkit versions and Transformers major versions). Keeping them isolated avoids version conflicts.
 
 ### ModelScope Users
 
@@ -122,4 +141,4 @@ If HuggingFace Hub is unreachable, set `export USE_MODELSCOPE_HUB=1` and replace
 
 - [LLamaFactory](https://github.com/hiyouga/LLaMA-Factory)
 - [vLLM](https://github.com/vllm-project/vllm)
-- [Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B)
+- [Qwen3.5](https://modelscope.cn/organization/qwen)
