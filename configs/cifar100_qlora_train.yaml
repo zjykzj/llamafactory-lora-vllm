@@ -26,7 +26,7 @@ preprocessing_num_workers: 8
 dataloader_num_workers: 4
 
 ### output
-output_dir: models/lora/cifar100_qlora
+output_dir: models/qlora/cifar100
 logging_steps: 10
 save_steps: 500
 plot_loss: true

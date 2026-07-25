@@ -50,7 +50,8 @@ Examples:
   bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs=5
 
 Auto-derived paths (no need to specify):
-  train → output_dir:   models/lora/{dataset}_{model_short}  (+ _qlora suffix when --qlora)
+  train → output_dir:   models/lora/{dataset}_{model_short}
+          with --qlora: models/qlora/{dataset}_{model_short}
   merge → adapter:      models/lora/{dataset}_{model_short}
           export_dir:   models/merged/{dataset}_{model_short}
 
@@ -169,7 +170,7 @@ case "$COMMAND" in
     train)
         if $QLORA; then
             YAML="configs/${DATASET}_qlora_train.yaml"
-            OUTPUT_DIR="${OUTPUT_DIR}_qlora"
+            OUTPUT_DIR="models/qlora/${DATASET}_${MODEL_SHORT}"
         else
             YAML="configs/${DATASET}_lora_train.yaml"
         fi
