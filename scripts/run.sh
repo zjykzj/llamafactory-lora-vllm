@@ -5,11 +5,15 @@
 #
 # Usage:
 #   bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B
+#   bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B --qlora
 #   bash scripts/run.sh merge --dataset cifar10 --model Qwen/Qwen3.5-0.8B
 #
 # The script overrides model_name_or_path and output/export dirs
 # based on --model, so you can switch models without editing YAML.
 # All other params (lora_rank, batch_size, etc.) stay in the YAML.
+#
+# --qlora uses the *_qlora_train.yaml config (4-bit quantization).
+# QLoRA adapters are compatible with the same merge/inference flow as LoRA.
 #
 # Extra args after -- are passed through to llamafactory-cli:
 #   bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs=5
@@ -33,18 +37,20 @@ Commands:
 
 Common options:
   --dataset NAME    Dataset name: cifar10, cifar100 (required)
-  --model ID        HuggingFace model ID or local path (required)
+  --model ID        ModelScope model ID or local path (required)
+  --qlora           Use QLoRA config (4-bit quantization, train only)
 
 Examples:
   bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B
   bash scripts/run.sh train --dataset cifar100 --model Qwen/Qwen3.5-2B
+  bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B --qlora
   bash scripts/run.sh merge --dataset cifar10 --model Qwen/Qwen3.5-0.8B
 
   # Pass extra training args after -- (use key=value format)
   bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- --num_train_epochs=5
 
 Auto-derived paths (no need to specify):
-  train → output_dir:   models/lora/{dataset}_{model_short}
+  train → output_dir:   models/lora/{dataset}_{model_short}  (+ _qlora suffix when --qlora)
   merge → adapter:      models/lora/{dataset}_{model_short}
           export_dir:   models/merged/{dataset}_{model_short}
 
@@ -74,6 +80,7 @@ esac
 
 DATASET=""
 MODEL=""
+QLORA=false
 PASSTHRU_ARGS=()
 PARSE_PASSTHRU=false
 
@@ -83,6 +90,8 @@ while [[ $# -gt 0 ]]; do
             DATASET="$2"; shift 2 ;;
         --model)
             MODEL="$2"; shift 2 ;;
+        --qlora)
+            QLORA=true; shift ;;
         --)
             PARSE_PASSTHRU=true; shift ;;
         --help|-h)
@@ -158,15 +167,27 @@ cd "$PROJECT_ROOT"
 
 case "$COMMAND" in
     train)
-        YAML="configs/${DATASET}_lora_train.yaml"
+        if $QLORA; then
+            YAML="configs/${DATASET}_qlora_train.yaml"
+            OUTPUT_DIR="${OUTPUT_DIR}_qlora"
+        else
+            YAML="configs/${DATASET}_lora_train.yaml"
+        fi
+
         if [ ! -f "$YAML" ]; then
             echo "Error: config not found: $YAML"
             exit 1
         fi
 
-        echo "=========================================="
-        echo " LoRA Training"
-        echo "=========================================="
+        if $QLORA; then
+            echo "=========================================="
+            echo " QLoRA Training (4-bit)"
+            echo "=========================================="
+        else
+            echo "=========================================="
+            echo " LoRA Training"
+            echo "=========================================="
+        fi
         echo "  Config:    $YAML"
         echo "  Model:     $MODEL"
         echo "  Output:    $OUTPUT_DIR"
