@@ -148,3 +148,7 @@ Training and deployment use **separate Python environments** due to conflicting 
 - [LLamaFactory](https://github.com/hiyouga/LLaMA-Factory)
 - [vLLM](https://github.com/vllm-project/vllm)
 - [Qwen3.5](https://modelscope.cn/organization/qwen)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
