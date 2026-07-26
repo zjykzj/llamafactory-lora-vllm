@@ -4,13 +4,14 @@
 
 Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/qwen3.5.md](docs/qwen3.5.md) for model configuration.
 
-| Model | CIFAR10 (Zero-shot) | CIFAR10 (LoRA) | CIFAR100 (Zero-shot) | CIFAR100 (LoRA) |
-|-------|---------------------|----------------|----------------------|-----------------|
-| Qwen3.5-0.8B | 91.18% | 95.39% | 52.71% | 82.07% |
-| Qwen3.5-2B | **96.47%** | **97.58%** | 75.67% | **88.22%** |
-| Qwen3.5-4B | 96.44% | — | **77.83%** | — |
+| Model | CIFAR10 (Zero-shot) | CIFAR10 (LoRA) | CIFAR100 (Zero-shot) | CIFAR100 (LoRA) | |
+|-------|---------------------|----------------|----------------------|-----------------|-----------------|
+| | | | | 200/cls | Full (500/cls) |
+| Qwen3.5-0.8B | 91.18% | 95.39% | 52.71% | 82.07% | 84.01% |
+| Qwen3.5-2B | **96.47%** | **97.58%** | 75.67% | **88.22%** | **89.53%** |
+| Qwen3.5-4B | 96.44% | — | **77.83%** | — | — |
 
-*All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning.*
+*All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning. CIFAR100 LoRA shows two training data sizes: 200 images per class (subset, 20K total) and the full training set (500 images per class, 50K total).*
 
 ## Pipeline
 
