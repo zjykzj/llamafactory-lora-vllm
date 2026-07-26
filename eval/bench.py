@@ -90,6 +90,7 @@ def _call_api(
         }],
         max_tokens=32,
         temperature=0.0,
+        extra_body={"chat_template_kwargs": {"enable_thinking": False}},
     )
     elapsed = time.perf_counter() - t0
     pred = response.choices[0].message.content.strip().lower()
@@ -132,17 +133,23 @@ def main() -> None:
     warmup_imgs = images[:args.warmup]
     bench_imgs = images[args.warmup:total_needed]
 
-    client = OpenAI(base_url=args.base_url, api_key=args.api_key)
+    client = OpenAI(base_url=args.base_url, api_key=args.api_key, timeout=120.0)
 
     # ── Warmup ─────────────────────────────────────────────────
 
     if args.warmup > 0:
         print(f"Warming up ({args.warmup} requests)...", end=" ", flush=True)
+        warmup_errors = 0
         for img, _ in warmup_imgs:
             try:
                 _call_api(client, args.model, img, class_list)
-            except Exception:
-                pass
+            except Exception as e:
+                warmup_errors += 1
+                if warmup_errors <= 1:
+                    print(f"\n  [warmup] error: {e}", end="", flush=True)
+        if warmup_errors == args.warmup:
+            print("\n  [warmup] ALL requests failed — check that the server is running.\n")
+            return
         print("done.\n")
 
     # ── Benchmark ──────────────────────────────────────────────
