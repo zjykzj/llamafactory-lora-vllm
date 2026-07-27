@@ -135,6 +135,9 @@ llamafactory-cli api configs/cifar10_infer.yaml
 | `SERVE_ADAPTER` | `--lora` | - |
 | `SERVE_BASE_MODEL` | `--base-model` | 自动从 adapter_config.json 读取 |
 | `SERVE_GPU_MEMORY` | `--gpu-memory` | `0.9` |
+| `SERVE_MAX_MODEL_LEN` | `--max-model-len` | vLLM 默认 |
+| `SERVE_MAX_NUM_SEQS` | `--max-num-seqs` | vLLM 默认 |
+| `SERVE_TENSOR_PARALLEL_SIZE` | `--tensor-parallel` | vLLM 默认 |
 | `SERVE_API_KEY` | `--api-key` | `not-needed` |
 | `USE_MODELSCOPE_HUB` | — | `0` | 设为 `1` 从 ModelScope 加载模型 |
 

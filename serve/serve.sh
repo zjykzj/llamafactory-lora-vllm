@@ -33,6 +33,9 @@ BASE_MODEL="${SERVE_BASE_MODEL:-}"
 GPU_MEMORY="${SERVE_GPU_MEMORY:-0.9}"
 API_KEY="${SERVE_API_KEY:-not-needed}"
 LORA_MODE=false
+MAX_MODEL_LEN="${SERVE_MAX_MODEL_LEN:-}"
+MAX_NUM_SEQS="${SERVE_MAX_NUM_SEQS:-}"
+TP_SIZE="${SERVE_TENSOR_PARALLEL_SIZE:-}"
 
 # ── Help ───────────────────────────────────────────────────
 
@@ -49,6 +52,9 @@ Options:
   --host ADDR         Bind address (default: 0.0.0.0, env: SERVE_HOST)
   --port PORT         Listen port (default: 8000, env: SERVE_PORT)
   --gpu-memory FLOAT  GPU memory utilization (default: 0.9, env: SERVE_GPU_MEMORY)
+  --max-model-len INT Max model context length (env: SERVE_MAX_MODEL_LEN)
+  --max-num-seqs INT  Max concurrent sequences (env: SERVE_MAX_NUM_SEQS)
+  --tensor-parallel N Tensor parallelism size (env: SERVE_TENSOR_PARALLEL_SIZE)
   --api-key KEY       API key for auth (default: not-needed, env: SERVE_API_KEY)
   --help, -h          Show this help message
 
@@ -84,6 +90,12 @@ while [[ $# -gt 0 ]]; do
             PORT="$2"; shift 2 ;;
         --gpu-memory)
             GPU_MEMORY="$2"; shift 2 ;;
+        --max-model-len)
+            MAX_MODEL_LEN="$2"; shift 2 ;;
+        --max-num-seqs)
+            MAX_NUM_SEQS="$2"; shift 2 ;;
+        --tensor-parallel)
+            TP_SIZE="$2"; shift 2 ;;
         --api-key)
             API_KEY="$2"; shift 2 ;;
         --help|-h)
@@ -160,7 +172,10 @@ except: pass
         --enable-lora \
         --lora-modules "$ADAPTER_NAME=$ADAPTER_PATH" \
         --gpu-memory-utilization "$GPU_MEMORY" \
-        --api-key "$API_KEY"
+        --api-key "$API_KEY" \
+        $( [ -n "$MAX_MODEL_LEN" ] && echo "--max-model-len $MAX_MODEL_LEN" ) \
+        $( [ -n "$MAX_NUM_SEQS" ] && echo "--max-num-seqs $MAX_NUM_SEQS" ) \
+        $( [ -n "$TP_SIZE" ] && echo "--tensor-parallel-size $TP_SIZE" )
 
 else
     # ── Merged model mode (default) ─────────────────────────
@@ -199,5 +214,8 @@ else
         --port "$PORT" \
         --trust-remote-code \
         --gpu-memory-utilization "$GPU_MEMORY" \
-        --api-key "$API_KEY"
+        --api-key "$API_KEY" \
+        $( [ -n "$MAX_MODEL_LEN" ] && echo "--max-model-len $MAX_MODEL_LEN" ) \
+        $( [ -n "$MAX_NUM_SEQS" ] && echo "--max-num-seqs $MAX_NUM_SEQS" ) \
+        $( [ -n "$TP_SIZE" ] && echo "--tensor-parallel-size $TP_SIZE" )
 fi
