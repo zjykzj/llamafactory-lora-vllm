@@ -100,6 +100,59 @@ QLoRA 在 LoRA 基础上将基座模型 **4-bit 量化**，进一步降低显存
 - 训练时反量化为 BF16 计算
 - 2B 模型 QLoRA 训练仅需 ~4GB 显存
 
+### QLoRA 专属参数
+
+```yaml
+### quantization (QLoRA)
+quantization_method: bitsandbytes
+quantization_bit: 4
+double_quantization: true         # 二次量化——连量化常量也量化，再省 ~0.4 bit/param
+bnb_4bit_compute_dtype: bfloat16  # 反量化后的计算精度
+bnb_4bit_quant_type: nf4          # 量化数据类型：nf4（推荐）或 fp4
+```
+
+| 参数 | 说明 | 建议值 |
+|------|------|--------|
+| `quantization_bit` | 量化位宽 | `4`（QLoRA 标准） |
+| `double_quantization` | 二次量化——将量化常量 `c1` 再用 `c2` 量化 | `true`（省显存，几乎无损） |
+| `bnb_4bit_compute_dtype` | 反量化后的计算精度 | `bfloat16`（与训练精度一致） |
+| `bnb_4bit_quant_type` | 量化数据类型 | `nf4`（NormalFloat4，对正态分布权重最优） |
+
+**NF4 vs FP4**：FP4 是标准 4-bit 浮点（等距分区），NF4 假设权重服从正态分布——在概率密度高的区域分配更多量化台阶，信息损失更小。大模型预训练权重经 LayerNorm 归一化后恰好近似正态分布。
+
+**为什么 double_quantization 几乎零成本**：量化常量本身很小（每 64 个参数共享 1 个 c1 = 32bit），二次量化为 8bit 节省了 `32-8=24` bits per 64 params ≈ 0.38 bit/param。对于 9B 模型，这省了约 0.4GB 显存。
+
+### QLoRA vs LoRA 精度对比
+
+核心问题：4-bit 量化会不会损害最终精度？答案是**基本不会**。
+
+| 维度 | LoRA (bf16) | QLoRA (nf4) |
+|------|------------|-------------|
+| 基座模型存储 | BF16（2 bytes/param） | NF4（0.5 bytes/param） |
+| 前向/反向计算 | BF16 | BF16（反量化后） |
+| 梯度存储 | BF16（仅 LoRA 参数） | BF16（仅 LoRA 参数） |
+| 优化器状态 | BF16 × 2（仅 LoRA 参数） | BF16 × 2（仅 LoRA 参数） |
+| 对精度的影响 | 0（无量化） | 量化噪声（NF4 → BF16 的误差） |
+
+**关键发现**：
+
+- **同等 rank**：QLoRA 精度通常比 LoRA 低 0.5~2%。但通过**提高 rank** 可以**完全补偿**——QLoRA rank=16 精度 ≈ LoRA rank=8 精度
+- **本项目实践**：QLoRA 配置默认 `rank=16`（对比 LoRA 默认 `rank=8`），正是基于这个经验
+- **对于 RTX 5090 32GB**：LoRA 显存足够，直接选 LoRA。只有 9B + 高分辨率图像显存吃紧时才考虑 QLoRA
+
+### 什么时候不该用 LoRA
+
+LoRA 并非万能。以下场景应优先考虑全量微调：
+
+| 场景 | 问题 | 建议 |
+|------|------|------|
+| **任务分布与预训练差异极大** | 低秩约束限制模型"转向"幅度 | 全量微调（数据足够时）或换更贴近的基座模型 |
+| **需要大幅改变模型行为** | 如从英文主模型切换到小众语种 | 全量微调 + 大学习率 |
+| **数据量极大（百万级）且质量高** | LoRA 的 rank 瓶颈压制了数据潜力 | 逐步提高 rank（32→64→128）直至接近全量微调效果 |
+| **需要合并后分发** | LoRA 权重需额外文件管理 | 这也正是 LoRA 的优势——不合并反而更灵活 |
+
+**实际判断法则**：先跑 LoRA——如果 loss 不降、精度不涨，且确认数据没问题——再考虑全量微调。对于 CIFAR 分类这种与视觉预训练高度对齐的任务，LoRA 完全够用。
+
 ## LLamaFactory 中的 LoRA 配置
 
 ```yaml
