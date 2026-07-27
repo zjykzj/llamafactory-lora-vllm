@@ -2,7 +2,7 @@
 
 > Workflow for LoRA fine-tuning with LLamaFactory and high-performance inference deployment via vLLM.
 
-Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/qwen3.5.md](docs/qwen3.5.md) for model configuration.
+Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](docs/README.md) for architecture theory, training guides, and deployment docs.
 
 | Model | CIFAR10 Zero-shot | CIFAR10 LoRA | CIFAR100 Zero-shot | CIFAR100 LoRA (200/cls) | CIFAR100 LoRA (Full) |
 |-------|-------------------|-------------|--------------------|------------------------|-----------------------|
@@ -29,7 +29,7 @@ CIFAR Data → Build Instructions → LoRA Train ─┬─ LLaMA API ───�
 ├── data/             # CIFAR download & instruction building scripts
 ├── serve/            # vLLM serve startup (LoRA & merged modes)
 ├── eval/             # Evaluation via OpenAI-compatible API
-├── docs/             # Model config, LoRA/QLoRA, vLLM, training, multimodal format
+├── docs/             # Architecture theory, LoRA, training, deployment, tokenization
 ├── CLAUDE.md         # AI assistant guidance
 └── README.md
 ```
