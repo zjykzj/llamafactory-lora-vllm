@@ -7,8 +7,9 @@ Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/qwen3
 | Model | CIFAR10 Zero-shot | CIFAR10 LoRA | CIFAR100 Zero-shot | CIFAR100 LoRA (200/cls) | CIFAR100 LoRA (Full) |
 |-------|-------------------|-------------|--------------------|------------------------|-----------------------|
 | Qwen3.5-0.8B | 91.18% | 95.39% | 52.71% | 82.07% | 84.01% |
-| Qwen3.5-2B | 96.47% | **97.58%** | 75.67% | 88.22% | **89.53%** |
-| Qwen3.5-4B | 96.44% | — | 77.83% | — | — |
+| Qwen3.5-2B | 96.47% | 97.58% | 75.67% | 88.22% | **89.53%** |
+| Qwen3.5-4B | 96.44% | 97.76% | 77.83% | 88.02% | — |
+| Qwen3.5-9B | 96.12% | **98.05%** | 79.26% | **88.96%** | — |
 
 *All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning. CIFAR100 LoRA shows two training data sizes: 200 images per class (subset, 20K total) and the full training set (500 images per class, 50K total).*
 
