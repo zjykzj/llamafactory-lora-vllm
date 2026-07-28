@@ -4,14 +4,27 @@
 
 Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](docs/README.md) for architecture theory, training guides, and deployment docs.
 
-| Model | CIFAR10 Zero-shot | CIFAR10 LoRA | CIFAR100 Zero-shot | CIFAR100 LoRA (200/cls) | CIFAR100 LoRA (Full) |
-|-------|-------------------|-------------|--------------------|------------------------|-----------------------|
-| Qwen3.5-0.8B | 91.18% | 95.39% | 52.71% | 82.07% | 84.01% |
-| Qwen3.5-2B | 96.47% | 97.58% | 75.67% | 88.22% | **89.53%** |
-| Qwen3.5-4B | 96.44% | 97.76% | 77.83% | 88.02% | — |
-| Qwen3.5-9B | 96.12% | **98.05%** | 79.26% | **88.96%** | — |
+| Model | CIFAR10 Zero-shot | LoRA (200/cls) | LoRA (Full) | Notes |
+|-------|-----------|----------------|-------------|-------|
+| Qwen3.5-0.8B | 91.18% | 95.39% | — | default |
+| Qwen3.5-2B | 96.47% | 97.58% | — | default |
+| Qwen3.5-4B | 96.44% | 97.76% | — | default |
+| Qwen3.5-4B | 96.44% | 97.83% | — | tuned: rank=16, α=32, dropout=0.1, lr=1e-4 |
+| Qwen3.5-9B | 96.12% | **98.05%** | — | default |
+| Qwen3.5-9B | 96.12% | 97.93% | — | tuned: rank=32, α=64, dropout=0.1, lr=5e-5 |
 
-*All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning. CIFAR100 LoRA shows two training data sizes: 200 images per class (subset, 20K total) and the full training set (500 images per class, 50K total).*
+| Model | CIFAR100 Zero-shot | LoRA (200/cls) | LoRA (Full) | Notes |
+|-------|-----------|----------------|-------------|-------|
+| Qwen3.5-0.8B | 52.71% | 82.07% | 84.01% | default |
+| Qwen3.5-2B | 75.67% | 88.22% | **89.53%** | default |
+| Qwen3.5-4B | 77.83% | 88.02% | — | default |
+| Qwen3.5-4B | 77.83% | 87.81% | — | tuned: rank=16, α=32, dropout=0.1, lr=1e-4 |
+| Qwen3.5-9B | 79.26% | **88.96%** | — | default |
+| Qwen3.5-9B | 79.26% | 88.25% | — | tuned: rank=32, α=64, dropout=0.1, lr=5e-5 |
+
+*All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning. CIFAR100 data sizes: 200/cls = 200 images per class (subset, 20K total), Full = 500 images per class (50K total).*
+
+**Default config:** `lora_rank=8, lora_alpha=16, lora_dropout=0.05, lr=2e-4, batch_size=4×4`. CIFAR10 uses 3 epochs, CIFAR100 uses 5 epochs. See [configs/](configs/) for full YAML settings.
 
 ## Pipeline
 
