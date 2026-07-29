@@ -6,8 +6,8 @@ Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](doc
 
 | Model | CIFAR10 Zero-shot | LoRA (200/cls) | LoRA (Full) | Notes |
 |-------|-----------|----------------|-------------|-------|
-| Qwen3.5-0.8B | 91.18% | 95.39% | — | default |
-| Qwen3.5-2B | 96.47% | 97.58% | — | default |
+| Qwen3.5-0.8B | 91.18% | 95.39% | 97.10% | default |
+| Qwen3.5-2B | 96.47% | 97.58% | **98.55%** | default |
 | Qwen3.5-4B | 96.44% | 97.76% | — | default |
 | Qwen3.5-4B | 96.44% | 97.83% | — | tuned: rank=16, α=32, dropout=0.1, lr=1e-4 |
 | Qwen3.5-9B | 96.12% | **98.05%** | — | default |
@@ -22,9 +22,36 @@ Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](doc
 | Qwen3.5-9B | 79.26% | **88.96%** | — | default |
 | Qwen3.5-9B | 79.26% | 88.25% | — | tuned: rank=32, α=64, dropout=0.1, lr=5e-5 |
 
-*All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning. CIFAR100 data sizes: 200/cls = 200 images per class (subset, 20K total), Full = 500 images per class (50K total).*
+*All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning. Data sizes: 200/cls = 200 images per class (subset, CIFAR10: 2K / CIFAR100: 20K total), Full = all training images (CIFAR10: 5,000/cls 50K / CIFAR100: 500/cls 50K total).*
 
 **Default config:** `lora_rank=8, lora_alpha=16, lora_dropout=0.05, lr=2e-4, batch_size=4×4`. CIFAR10 uses 3 epochs, CIFAR100 uses 5 epochs. See [configs/](configs/) for full YAML settings.
+
+> CIFAR-10 SOTA Reference (Papers with Code)
+>
+> Top results from the [CIFAR-10 leaderboard](https://paperswithcode.com/sota/image-classification-on-cifar-10). Listed for context — our LoRA fine-tuned small LLMs trade some accuracy for general-purpose vision-language capability.
+
+| Rank | Model | Accuracy | Paper | Year |
+|------|-------|----------|-------|------|
+| 1 | ViT-H/14 | 99.5% | [An Image is Worth 16x16 Words](https://arxiv.org/abs/2010.11929) | 2020 |
+| 1 | DINOv2 (ViT-g/14) | 99.5% | [DINOv2: Learning Robust Visual Features without Supervision](https://arxiv.org/abs/2304.07193) | 2023 |
+| 9 | EfficientNet-B7 | 98.9% | [EfficientNet: Rethinking Model Scaling for CNNs](https://arxiv.org/abs/1905.11946) | 2019 |
+| 15 | CN-CLIP | 96.0% | [Chinese CLIP: Contrastive Vision-Language Pretraining in Chinese](https://arxiv.org/abs/2211.01335) | 2022 |
+| 19 | ResNet-110 | 93.6% | [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) | 2015 |
+
+*Rankings as of 2026-07 by Papers with Code. All results use full CIFAR-10 training set (50,000 images).*
+
+> CIFAR-100 SOTA Reference (Papers with Code)
+>
+> Top results from the [CIFAR-100 leaderboard](https://paperswithcode.com/sota/image-classification-on-cifar-100). CN-CLIP included as a vision-language baseline for comparison with our multimodal LLM approach.
+
+| Rank | Model | Accuracy | Paper | Year |
+|------|-------|----------|-------|------|
+| 2 | ViT-H/14 | 94.5% | [An Image is Worth 16x16 Words](https://arxiv.org/abs/2010.11929) | 2020 |
+| 4 | DINOv2 (ViT-g/14) | 94.4% | [DINOv2: Learning Robust Visual Features without Supervision](https://arxiv.org/abs/2304.07193) | 2023 |
+| 10 | EfficientNet-B7 | 91.7% | [EfficientNet: Rethinking Model Scaling for CNNs](https://arxiv.org/abs/1905.11946) | 2019 |
+| 21 | CN-CLIP | 79.7% | [Chinese CLIP: Contrastive Vision-Language Pretraining in Chinese](https://arxiv.org/abs/2211.01335) | 2022 |
+
+*Rankings as of 2026-07 by Papers with Code. All results use full CIFAR-100 training set (50,000 images).*
 
 ## Pipeline
 

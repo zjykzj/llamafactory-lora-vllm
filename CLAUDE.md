@@ -19,14 +19,22 @@ CIFAR Data → Build Instructions → LoRA Train → (Merge optional) → Serve 
 ## Key commands
 
 ```bash
-# Data prep
+# Data prep (subset: 200 images per class for quick experiments)
 python data/download_cifar.py --dataset cifar10 --subset 200
+python data/build_instructions.py --dataset cifar10
+
+# Full dataset: omit --subset to download all images (CIFAR10: 5,000/cls, CIFAR100: 500/cls)
+python data/download_cifar.py --dataset cifar10
 python data/build_instructions.py --dataset cifar10
 
 # Train & merge — use the wrapper script (switches models without editing YAML)
 bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B
 bash scripts/run.sh train --dataset cifar100 --model Qwen/Qwen3.5-2B
 bash scripts/run.sh merge --dataset cifar10 --model Qwen/Qwen3.5-0.8B
+
+# Full dataset training: increase per_device_train_batch_size to fill VRAM, reduce gradient_accumulation_steps
+bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-0.8B -- per_device_train_batch_size=16 gradient_accumulation_steps=1
+bash scripts/run.sh train --dataset cifar10 --model Qwen/Qwen3.5-2B -- per_device_train_batch_size=16 gradient_accumulation_steps=1
 
 # Or call llamafactory-cli directly (YAML defaults must match your model)
 llamafactory-cli train configs/cifar10_lora_train.yaml
