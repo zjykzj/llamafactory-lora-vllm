@@ -16,4 +16,5 @@
 ## 数据与部署
 
 - **[多模态数据集格式](multimodal_dataset.md)** — LLaMA Factory ShareGPT + `<image>` 数据格式规范
+- **[提示词设计策略](prompt_strategy.md)** — 多模态提示词设计原则、训练多样化 vs 评估对齐、CIFAR10/100 策略差异
 - **[vLLM 部署](vllm_deployment.md)** — LoRA 直接部署 / 合并部署、场景调参指南（低显存/多卡/高并发）

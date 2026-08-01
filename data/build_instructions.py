@@ -35,9 +35,9 @@ PROMPT_TEMPLATES = {
         "class_list": "airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck",
         "prompts": [
             "<image>Classify this image into one of these categories: {class_list}. Answer with only the class name.",
-            "<image>What object is shown in this image? Choose from: {class_list}.",
-            "<image>Identify the main object in this picture. Options: {class_list}. Respond with just the category name.",
-            "<image>This is a CIFAR-10 image. Which of the following classes does it belong to? {class_list}",
+            "<image>What object is shown in this image? Choose from: {class_list}. Answer with only the class name.",
+            "<image>Identify the main object in this picture. Options: {class_list}. Answer with only the class name.",
+            "<image>Which category does this image belong to? Options: {class_list}. Answer with only the class name.",
         ],
     },
     "cifar100": {
@@ -58,9 +58,9 @@ PROMPT_TEMPLATES = {
             "tulip, turtle, wardrobe, whale, willow_tree, wolf, woman, worm"
         ),
         "prompts": [
-            "<image>Classify this image into one of these categories: {class_list}. Answer with only the class name.",
-            "<image>What object is shown in this image? Choose from the CIFAR-100 categories. Respond with just the category name.",
-            "<image>Identify the main object in this picture from the CIFAR-100 dataset. Options include: {class_list}. Answer with only the class name.",
+            "<image>Classify this image. Answer with only the class name.",
+            "<image>What object is shown in this image? Answer with only the class name.",
+            "<image>Identify the main object in this picture. Answer with only the class name.",
         ],
     },
 }

@@ -72,5 +72,6 @@ trust_remote_code: true
 
 ## 参考
 
+- **[提示词设计策略](prompt_strategy.md)** — 本项目的提示词设计原则与 CIFAR10/100 策略差异
 - LLamaFactory `data/README.md` — MLLM 数据集说明
 - LLamaFactory `examples/train_lora/` — 多模态 LoRA 训练示例

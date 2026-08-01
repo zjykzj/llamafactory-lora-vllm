@@ -71,10 +71,22 @@ def _call_api(
     client: OpenAI,
     model: str,
     image,
-    class_list: list[str],
+    class_list: list[str] | None = None,
 ) -> tuple[str, float, dict | None]:
-    """Send one classification request. Returns (predicted_class, elapsed_seconds, usage_dict_or_None)."""
-    class_str = ", ".join(class_list)
+    """Send one classification request. Returns (predicted_class, elapsed_seconds, usage_dict_or_None).
+
+    If class_list is provided (e.g. CIFAR10), it is included in the prompt.
+    For datasets with many classes (e.g. CIFAR100), omit to avoid prompt bloat.
+    """
+    if class_list:
+        class_str = ", ".join(class_list)
+        text = (
+            f"Classify this image into one of these categories: {class_str}. "
+            "Answer with only the class name."
+        )
+    else:
+        text = "Classify this image. Answer with only the class name."
+
     t0 = time.perf_counter()
     response = client.chat.completions.create(
         model=model,
@@ -82,10 +94,7 @@ def _call_api(
             "role": "user",
             "content": [
                 {"type": "image_url", "image_url": {"url": image_to_base64(image)}},
-                {"type": "text", "text": (
-                    f"Classify this image into one of these categories: {class_str}. "
-                    "Answer with only the class name, nothing else."
-                )},
+                {"type": "text", "text": text},
             ],
         }],
         max_tokens=32,
@@ -118,8 +127,10 @@ def main() -> None:
 
     # ── Load dataset ──────────────────────────────────────────
 
-    class_list = CIFAR10_CLASSES if args.dataset == "cifar10" else CIFAR100_CLASSES
     DatasetCls = CIFAR10 if args.dataset == "cifar10" else CIFAR100
+    # CIFAR10 has only 10 classes — include them to constrain the output space.
+    # CIFAR100 has 100 classes — omit to avoid bloating the prompt.
+    class_list = CIFAR10_CLASSES if args.dataset == "cifar10" else None
 
     data_dir = str(ROOT / "data" / "raw")
     dataset = DatasetCls(root=data_dir, train=False, download=True)
@@ -165,7 +176,7 @@ def main() -> None:
 
     for i, (img, _) in enumerate(bench_imgs):
         try:
-            pred, elapsed, usage = _call_api(client, args.model, img, class_list)
+            pred, elapsed, usage = _call_api(client, args.model, img)
             latencies.append(elapsed)
             if usage:
                 prompt_tokens.append(usage["prompt_tokens"])

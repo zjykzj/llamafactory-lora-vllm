@@ -368,5 +368,6 @@ CIFAR 数据集本身有独立的 test set（10K 张图），当前做法是**�
 ## 参考
 
 - 当前项目各方案对应的 config 文件：`configs/cifar10_lora_train.yaml`、`configs/cifar100_lora_train.yaml`
+- [提示词设计策略](./prompt_strategy.md) — 训练/评估提示词的对齐原则
 - [LLaMA Factory 训练文档](https://llamafactory.readthedocs.io/zh-cn/latest/getting_started/training.html)
 - [LoRA/QLoRA 说明](./lora_qlora.md)

@@ -24,10 +24,24 @@ def classify_image(
     client: OpenAI,
     model: str,
     image: Image.Image | np.ndarray,
-    class_list: list[str],
+    class_list: list[str] | None = None,
 ) -> str:
-    """Send an image to vLLM and return the predicted class name."""
-    class_str = ", ".join(class_list)
+    """Send an image to vLLM and return the predicted class name.
+
+    If class_list is provided (e.g. CIFAR10 with 10 short class names),
+    it is included in the prompt to constrain the output space. For
+    datasets with many classes (e.g. CIFAR100), omit class_list to
+    avoid bloating the prompt.
+    """
+    if class_list:
+        class_str = ", ".join(class_list)
+        text = (
+            f"Classify this image into one of these categories: {class_str}. "
+            "Answer with only the class name."
+        )
+    else:
+        text = "Classify this image. Answer with only the class name."
+
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -38,13 +52,7 @@ def classify_image(
                         "type": "image_url",
                         "image_url": {"url": image_to_base64(image)},
                     },
-                    {
-                        "type": "text",
-                        "text": (
-                            f"Classify this image into one of these categories: {class_str}. "
-                            "Answer with only the class name, nothing else."
-                        ),
-                    },
+                    {"type": "text", "text": text},
                 ],
             }
         ],

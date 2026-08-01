@@ -74,7 +74,9 @@ def main() -> None:
     for img, label in tqdm(samples):
         true_class = CIFAR100_CLASSES[label]
         try:
-            pred = classify_image(client, args.model, img, CIFAR100_CLASSES)
+            # CIFAR100 has 100 classes — omit class_list to avoid prompt bloat.
+            # The model learns class names from training, no list needed at inference.
+            pred = classify_image(client, args.model, img)
         except Exception as e:
             print(f"\nError on sample {label}: {e}")
             pred = "<error>"
