@@ -11,9 +11,8 @@ from pathlib import Path
 
 from openai import OpenAI
 from torchvision.datasets import CIFAR10
-from tqdm import tqdm
 
-from eval import classify_image, compute_accuracy
+from eval import compute_accuracy, evaluate_dataset
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -45,6 +44,11 @@ def main() -> None:
         "--api-key", default="not-needed",
         help="API key (vLLM default is 'not-needed')"
     )
+    parser.add_argument(
+        "--workers", type=int, default=1,
+        help="Number of concurrent worker threads (default: 1, sequential). "
+             "Increase for higher throughput when the server supports concurrency."
+    )
     args = parser.parse_args()
 
     # Load CIFAR10 test set
@@ -53,21 +57,13 @@ def main() -> None:
     print(f"Loaded CIFAR10 test set: {len(dataset)} images")
 
     samples = list(dataset) if args.max_samples is None else list(dataset)[:args.max_samples]
-    print(f"Evaluating {len(samples)} samples...")
+    print(f"Evaluating {len(samples)} samples (workers={args.workers})...")
 
     client = OpenAI(base_url=args.base_url, api_key=args.api_key)
-    predictions = []
-    ground_truth = []
-
-    for img, label in tqdm(samples):
-        true_class = CIFAR10_CLASSES[label]
-        try:
-            pred = classify_image(client, args.model, img, CIFAR10_CLASSES)
-        except Exception as e:
-            print(f"\nError on sample {label}: {e}")
-            pred = "<error>"
-        predictions.append(pred)
-        ground_truth.append(true_class)
+    predictions, ground_truth = evaluate_dataset(
+        client, args.model, samples, CIFAR10_CLASSES,
+        class_list=CIFAR10_CLASSES, workers=args.workers,
+    )
 
     metrics = compute_accuracy(predictions, ground_truth)
     print(f"\nCIFAR10 Results: {metrics['correct']}/{metrics['total']} correct")

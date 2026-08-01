@@ -75,3 +75,53 @@ def compute_accuracy(
         "total": total,
         "accuracy": correct / total if total > 0 else 0.0,
     }
+
+
+def evaluate_dataset(
+    client: OpenAI,
+    model: str,
+    samples: list[tuple[Image.Image, int]],
+    class_names: list[str],
+    class_list: list[str] | None = None,
+    workers: int = 1,
+) -> tuple[list[str], list[str]]:
+    """Evaluate a dataset with optional multi-worker concurrency.
+
+    Args:
+        client: OpenAI-compatible client.
+        model: Model name as served by vLLM.
+        samples: List of (image, label_id) tuples.
+        class_names: List mapping label_id → class name string.
+        class_list: If provided, included in the prompt to constrain outputs
+                    (e.g. CIFAR10). Omit for datasets with many classes.
+        workers: Number of concurrent threads (1 = sequential, the default).
+
+    Returns:
+        (predictions, ground_truth) as lists of class name strings, aligned.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from tqdm import tqdm
+
+    results: dict[int, str] = {}
+    ground_truth = [class_names[label] for _, label in samples]
+
+    def _classify(idx: int, image: Image.Image) -> tuple[int, str]:
+        try:
+            return idx, classify_image(client, model, image, class_list)
+        except Exception:
+            return idx, "<error>"
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {
+            executor.submit(_classify, i, img): i
+            for i, (img, _) in enumerate(samples)
+        }
+        with tqdm(total=len(futures), desc="Evaluating") as pbar:
+            for future in as_completed(futures):
+                idx, pred = future.result()
+                results[idx] = pred
+                pbar.update(1)
+
+    # Reconstruct predictions in original order
+    predictions = [results[i] for i in range(len(samples))]
+    return predictions, ground_truth
