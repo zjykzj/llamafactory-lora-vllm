@@ -72,11 +72,9 @@ def main() -> None:
     print(f"Evaluating {len(samples)} samples (workers={args.workers})...")
 
     client = OpenAI(base_url=args.base_url, api_key=args.api_key)
-    # CIFAR100 has 100 classes — omit class_list to avoid prompt bloat.
-    # The model learns class names from training, no list needed at inference.
     predictions, ground_truth = evaluate_dataset(
         client, args.model, samples, CIFAR100_CLASSES,
-        class_list=None, workers=args.workers,
+        class_list=CIFAR100_CLASSES, workers=args.workers,
     )
 
     metrics = compute_accuracy(predictions, ground_truth)

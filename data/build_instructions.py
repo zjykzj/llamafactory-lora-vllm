@@ -58,9 +58,9 @@ PROMPT_TEMPLATES = {
             "tulip, turtle, wardrobe, whale, willow_tree, wolf, woman, worm"
         ),
         "prompts": [
-            "<image>Classify this image. Answer with only the class name.",
-            "<image>What object is shown in this image? Answer with only the class name.",
-            "<image>Identify the main object in this picture. Answer with only the class name.",
+            "<image>Classify this image into one of these categories: {class_list}. Answer with only the class name.",
+            "<image>What object is shown in this image? Choose from: {class_list}. Answer with only the class name.",
+            "<image>Identify the main object in this picture. Options: {class_list}. Answer with only the class name.",
         ],
     },
 }

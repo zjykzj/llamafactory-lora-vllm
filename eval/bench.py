@@ -18,7 +18,7 @@ from pathlib import Path
 from openai import OpenAI
 from torchvision.datasets import CIFAR10, CIFAR100
 
-from eval import image_to_base64
+from eval import image_to_base64, normalize_label
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -102,7 +102,7 @@ def _call_api(
         extra_body={"chat_template_kwargs": {"enable_thinking": False}},
     )
     elapsed = time.perf_counter() - t0
-    pred = response.choices[0].message.content.strip().lower()
+    pred = normalize_label(response.choices[0].message.content)
     usage = None
     if hasattr(response, "usage") and response.usage:
         usage = {
@@ -128,9 +128,7 @@ def main() -> None:
     # ── Load dataset ──────────────────────────────────────────
 
     DatasetCls = CIFAR10 if args.dataset == "cifar10" else CIFAR100
-    # CIFAR10 has only 10 classes — include them to constrain the output space.
-    # CIFAR100 has 100 classes — omit to avoid bloating the prompt.
-    class_list = CIFAR10_CLASSES if args.dataset == "cifar10" else None
+    class_list = CIFAR10_CLASSES if args.dataset == "cifar10" else CIFAR100_CLASSES
 
     data_dir = str(ROOT / "data" / "raw")
     dataset = DatasetCls(root=data_dir, train=False, download=True)

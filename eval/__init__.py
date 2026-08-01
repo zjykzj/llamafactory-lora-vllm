@@ -4,11 +4,22 @@ Shared utilities for CIFAR evaluation via vLLM OpenAI-compatible API.
 """
 import base64
 import io
+import re
 from typing import Any
 
 import numpy as np
 from openai import OpenAI
 from PIL import Image
+
+
+def normalize_label(s: str) -> str:
+    """Normalize a class label for comparison.
+
+    Collapses underscores, hyphens, and whitespace into a single space,
+    then lowercases and strips. This ensures ``"pickup_truck"``,
+    ``"pickup truck"``, and ``"Pickup Truck"`` all match.
+    """
+    return re.sub(r"[\s_\-]+", " ", s.strip().lower()).strip()
 
 
 def image_to_base64(image: Image.Image | np.ndarray) -> str:
@@ -28,10 +39,9 @@ def classify_image(
 ) -> str:
     """Send an image to vLLM and return the predicted class name.
 
-    If class_list is provided (e.g. CIFAR10 with 10 short class names),
-    it is included in the prompt to constrain the output space. For
-    datasets with many classes (e.g. CIFAR100), omit class_list to
-    avoid bloating the prompt.
+    If class_list is provided, it is included in the prompt to constrain
+    the output space (e.g. "Classify this image into one of these
+    categories: ..."). Both CIFAR10 and CIFAR100 pass their class lists.
     """
     if class_list:
         class_str = ", ".join(class_list)
@@ -60,15 +70,19 @@ def classify_image(
         temperature=0.0,
         extra_body={"chat_template_kwargs": {"enable_thinking": False}},
     )
-    return response.choices[0].message.content.strip().lower()
+    return normalize_label(response.choices[0].message.content)
 
 
 def compute_accuracy(
     predictions: list[str],
     ground_truth: list[str],
 ) -> dict[str, Any]:
-    """Compute accuracy metrics."""
-    correct = sum(1 for p, g in zip(predictions, ground_truth) if p == g)
+    """Compute accuracy metrics. Both predictions and ground truth are
+    normalized before comparison (see :func:`normalize_label`)."""
+    correct = sum(
+        1 for p, g in zip(predictions, ground_truth)
+        if normalize_label(p) == normalize_label(g)
+    )
     total = len(ground_truth)
     return {
         "correct": correct,
