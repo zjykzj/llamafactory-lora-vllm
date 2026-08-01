@@ -115,6 +115,31 @@ Qwen3.5 原生于多模态——**文本和视觉共享同一套 Transformer 参
 
 图像经 patch 切分、SigLIP 编码后，通过一个线性投影层映射到语言模型的 hidden size，然后直接作为 "visual tokens" 插入文本序列。在全注意力层中，M-RoPE 为 visual tokens 分配独立的位置编码维度。
 
+### Image Preprocessing（图像预处理）
+
+Qwen3.5 的 image processor 在图像进入 Vision Encoder 前执行以下流水线：
+
+```
+输入图像 → 转 RGB → 等比缩放 → 1/255 缩放到 [0,1] → normalize → [-1,1] → patchify+merge
+```
+
+**缩放规则**：保持宽高比，使总像素数落在 `[min_pixels, max_pixels]` 范围内。小于 min 的上采样，大于 max 的下采样。
+
+**默认参数**（来自 `preprocessor_config.json`）：
+
+| 参数 | 配置字段 | 默认值 | 等效分辨率 |
+|------|---------|--------|-----------|
+| min_pixels | `size.shortest_edge` | 65,536 | 256×256 |
+| max_pixels | `size.longest_edge` | 16,777,216 | 4096×4096 |
+| resample | — | 3 (bicubic) | — |
+| rescale_factor | — | 1/255 | 映射 [0,255] → [0,1] |
+| image_mean | — | [0.5, 0.5, 0.5] | — |
+| image_std | — | [0.5, 0.5, 0.5] | 映射 [0,1] → [-1,1] |
+
+> 正常化之后的值域是 [-1, 1]，而非常见的 ImageNet 均值和标准差。
+
+**与 LLaMA Factory 的关系**：LLaMA Factory 在数据加载阶段也会做一次 resize（参数 `image_min_pixels`/`image_max_pixels`），之后 Qwen3.5 的 image processor 再做第二次 resize。对于 CIFAR 32×32（1024 像素）这种极小图，LLaMA Factory 层不缩放（1024 ≥ 默认的 1024 min），但到 Qwen3.5 层会被上采样到约 256×256（≥65536 min）。详见 [训练参数文档](training_config.md#图像预处理与两层-resize)。
+
 ## Key Features
 
 **FP8 Native 训练与推理**：Qwen3.5 是首个全链路支持 FP8 的开源大模型。FP8 相比 BF16 将显存占用和计算带宽开销均减半，且 Qwen 团队在预训练阶段就使用 FP8，非后量化方案，精度损失极低。

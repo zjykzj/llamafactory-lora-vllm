@@ -61,7 +61,44 @@
 1. **降 image_max_pixels** → 65536（省 ~10 GB 激活）→ ~23.7 GB，轻松装下
 2. **降 batch_size** → 2（激活减半）→ ~26.2 GB，也够
 
-对于 CIFAR 32×32 这种极小图片，`image_max_pixels` 控制的是**上采样后的分辨率**。实际 token 数取决于 resize 策略而非原图尺寸。
+### 图像预处理与两层 Resize
+
+图像在进入 Vision Encoder 前，会经历**两层 resize**：
+
+```
+原始图像 → [LLaMA Factory _regularize_images] → [Qwen3.5 ImageProcessor] → Vision Encoder
+```
+
+**第一层：LLaMA Factory（数据加载阶段）**
+
+LLaMA Factory 在 `ProcessorArguments` 中提供了 min/max 两个参数（本项目 YAML 中只配置了 max）：
+
+| 参数 | 默认值 | 本项目配置 | 说明 |
+|------|--------|-----------|------|
+| `image_min_pixels` | 1,024 (32×32) | 未设置（用默认） | 小于此值的图会被放大 |
+| `image_max_pixels` | 589,824 (768×768) | **262,144** (512×512) | 大于此值的图会被缩小 |
+
+该层保持宽高比、等比缩放。
+
+**第二层：Qwen3.5 ImageProcessor（模型内部）**
+
+Qwen3.5 的 `preprocessor_config.json` 自带独立的 resize 参数：
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| min_pixels | 65,536 (256×256) | 小于此值的图会被上采样到约 256² |
+| max_pixels | 16,777,216 (4096×4096) | 远大于本项目配置，实际不会触发 |
+
+**CIFAR 32×32 的实际路径**：
+
+```
+32×32 (1024 px)
+  → LLaMA Factory: 1024 ≥ min(1024)，不放大；1024 ≤ max(262144)，不缩小
+  → Qwen3.5 ImageProcessor: 1024 < min(65536)，上采样到约 256×256
+  → 最终 visual tokens: ~64 个 (256/16=16, 16²=256, 2×2 merge → 64)
+```
+
+对于 CIFAR 32×32 这种极小图片，实际 token 数取决于**两层的 resize 叠加结果**。`image_max_pixels: 262144` 限制的是 LLaMA Factory 这层的上限，但最终分辨率由 Qwen3.5 的 `min_pixels: 65536` 决定了下限。即使降了 LLaMA Factory 的 max，Qwen3.5 内部也会把图放大到至少 256×256（除非能修改模型的 preprocessor_config）。
 
 ---
 
