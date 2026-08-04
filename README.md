@@ -6,21 +6,21 @@ Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](doc
 
 | Model | CIFAR10 Zero-shot | LoRA (200/cls) | LoRA (Full) | Notes |
 |-------|-----------|----------------|-------------|-------|
-| Qwen3.5-0.8B | 91.18% | 95.39% | 97.10% | default |
-| Qwen3.5-2B | 96.47% | 97.58% | **98.55%** | default |
-| Qwen3.5-4B | 96.44% | 97.76% | — | default |
-| Qwen3.5-4B | 96.44% | 97.83% | — | tuned: rank=16, α=32, dropout=0.1, lr=1e-4 |
-| Qwen3.5-9B | 96.12% | **98.05%** | — | default |
-| Qwen3.5-9B | 96.12% | 97.93% | — | tuned: rank=32, α=64, dropout=0.1, lr=5e-5 |
+| Qwen3.5-0.8B | 90.72% | 95.51% | 97.13% | default |
+| Qwen3.5-2B | 96.26% | 97.67% | **98.51%** | default |
+| Qwen3.5-4B | 96.52% | 97.77% | — | default |
+| Qwen3.5-4B | 96.52% | 97.74% | — | tuned: rank=16, α=32, dropout=0.1, lr=1e-4 |
+| Qwen3.5-9B | 95.83% | **98.01%** | — | default |
+| Qwen3.5-9B | 95.83% | 97.93% | — | tuned: rank=32, α=64, dropout=0.1, lr=5e-5 |
 
 | Model | CIFAR100 Zero-shot | LoRA (200/cls) | LoRA (Full) | Notes |
 |-------|-----------|----------------|-------------|-------|
-| Qwen3.5-0.8B | 52.71% | 82.07% | 84.01% | default |
-| Qwen3.5-2B | 75.67% | 88.22% | **89.53%** | default |
-| Qwen3.5-4B | 77.83% | 88.02% | — | default |
-| Qwen3.5-4B | 77.83% | 87.81% | — | tuned: rank=16, α=32, dropout=0.1, lr=1e-4 |
-| Qwen3.5-9B | 79.26% | **88.96%** | — | default |
-| Qwen3.5-9B | 79.26% | 88.25% | — | tuned: rank=32, α=64, dropout=0.1, lr=5e-5 |
+| Qwen3.5-0.8B | 51.80% | 82.12% | 84.41% | default |
+| Qwen3.5-2B | 75.11% | 88.37% | **89.70%** | default |
+| Qwen3.5-4B | 77.77% | 88.18% | — | default |
+| Qwen3.5-4B | 77.77% | 88.05% | — | tuned: rank=16, α=32, dropout=0.1, lr=1e-4 |
+| Qwen3.5-9B | 79.16% | **89.19%** | — | default |
+| Qwen3.5-9B | 79.16% | 88.38% | — | tuned: rank=32, α=64, dropout=0.1, lr=5e-5 |
 
 *All results evaluated on the full test set (10,000 images) via vLLM. Zero-shot refers to the base model without fine-tuning. Data sizes: 200/cls = 200 images per class (subset, CIFAR10: 2K / CIFAR100: 20K total), Full = all training images (CIFAR10: 5,000/cls 50K / CIFAR100: 500/cls 50K total).*
 
@@ -52,6 +52,21 @@ Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](doc
 | 21 | CN-CLIP | 79.7% | [Chinese CLIP: Contrastive Vision-Language Pretraining in Chinese](https://arxiv.org/abs/2211.01335) | 2022 |
 
 *Rankings as of 2026-07 by Papers with Code. All results use full CIFAR-100 training set (50,000 images).*
+
+## 🚀 Updates
+
+### v0.2.0
+
+- **Optimized training prompts** — three design principles applied to `build_instructions.py`: include class list in every variant, consistently end with "Answer with only the class name.", drop dataset-specific noise. See [`docs/prompt_strategy.md`](docs/prompt_strategy.md).
+- **Fuzzy label matching** — `normalize_label()` handles underscore/hyphen/whitespace variants so `"pickup_truck"` matches `"pickup truck"`.
+- **Concurrent evaluation** — `--workers N` enables multi-threaded inference, significantly faster full-set evaluation.
+- **All results re-evaluated** — benchmark tables below reflect **v0.2.0 prompts** (re-trained LoRA models + fresh zero-shot runs).
+
+### v0.1.x
+
+Initial release with baseline prompts. LoRA models trained under v0.1.x prompts produce **different results** from v0.2.0 — the two versions are **not directly comparable** due to the prompt change.
+
+> 📎 **v0.1.x results are preserved at [tag v0.1.1](https://github.com/zjykzj/llamafactory-lora-vllm/releases/tag/v0.1.1).** If you are using a v0.1.x-trained LoRA adapter, refer to that tag's README for the correct accuracy numbers.
 
 ## Pipeline
 
