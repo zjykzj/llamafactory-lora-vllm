@@ -1,6 +1,6 @@
 # llamafactory-lora-vllm
 
-> 基于 LLaMA-Factory 的 LoRA 微调 → 通过 vLLM 进行高性能推理部署。
+> 🦙 基于 LLaMA-Factory 的 LoRA 微调 → 通过 vLLM 进行高性能推理部署。
 
 在 **CIFAR10 / CIFAR100** 图像分类任务上进行微调。架构理论、训练指南与部署文档见 [docs/](docs/README.md)。
 

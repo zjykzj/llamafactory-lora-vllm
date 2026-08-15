@@ -1,6 +1,6 @@
 # llamafactory-lora-vllm
 
-> LoRA fine-tuning with LLaMA-Factory → high-performance inference deployment via vLLM.
+> 🦙 LoRA fine-tuning with LLaMA-Factory → high-performance inference deployment via vLLM.
 
 Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](docs/README.md) for architecture theory, training guides, and deployment docs.
 
