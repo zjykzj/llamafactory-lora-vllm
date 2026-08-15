@@ -1,10 +1,10 @@
 # Data
 
-CIFAR 数据集下载、转换为 LLamaFactory 多模态训练格式。
+CIFAR 数据集下载、转换为 LLaMA-Factory 多模态训练格式。
 
 ## 数据格式
 
-采用 **ShareGPT 多模态格式**（`<image>` 占位符 + `images` 数组），供 LLamaFactory 直接训练：
+采用 **ShareGPT 多模态格式**（`<image>` 占位符 + `images` 数组），供 LLaMA-Factory 直接训练：
 
 ```json
 [
@@ -23,7 +23,7 @@ CIFAR 数据集下载、转换为 LLamaFactory 多模态训练格式。
 
 关键规则：
 - `<image>` 标记数量与 `images` 数组长度严格一致
-- 图片路径相对于 LLamaFactory 根目录（`dataset_info.json` 中配置）
+- 图片路径相对于 LLaMA-Factory 根目录（`dataset_info.json` 中配置）
 - Qwen3.5-2B 接受图像+文本输入，直接使用原始图片即可
 
 ## 数据目录结构

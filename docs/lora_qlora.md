@@ -19,7 +19,7 @@ $$h = Wx + \alpha \cdot BAx$$
 | `r` (rank) | 低秩矩阵的秩，越大表达能力越强 | 8~64 |
 | `alpha` | 缩放因子，通常设为 `2 * r` | 16~128 |
 | `dropout` | LoRA dropout 比例 | 0.0~0.1 |
-| `target_modules` | 应用 LoRA 的模块 | `all` (LLamaFactory) |
+| `target_modules` | 应用 LoRA 的模块 | `all` (LLaMA-Factory) |
 
 ### LoRA Rank 深入理解
 
@@ -153,7 +153,7 @@ LoRA 并非万能。以下场景应优先考虑全量微调：
 
 **实际判断法则**：先跑 LoRA——如果 loss 不降、精度不涨，且确认数据没问题——再考虑全量微调。对于 CIFAR 分类这种与视觉预训练高度对齐的任务，LoRA 完全够用。
 
-## LLamaFactory 中的 LoRA 配置
+## LLaMA-Factory 中的 LoRA 配置
 
 ```yaml
 finetuning_type: lora
@@ -284,4 +284,4 @@ lr 过高在 9B 上可能表现为 loss 抖动、最终精度不升反降。
 
 - [LoRA Paper](https://arxiv.org/abs/2106.09685)
 - [QLoRA Paper](https://arxiv.org/abs/2305.14314)
-- [LLamaFactory LoRA Documentation](https://llamafactory.readthedocs.io/)
+- [LLaMA-Factory LoRA Documentation](https://llamafactory.readthedocs.io/)

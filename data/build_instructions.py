@@ -2,7 +2,7 @@
 """
 Build ShareGPT-format instruction data from CIFAR PNG images.
 
-Output format (LLamaFactory multimodal):
+Output format (LLaMA-Factory multimodal):
     [
       {
         "messages": [

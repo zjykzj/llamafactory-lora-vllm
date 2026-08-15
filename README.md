@@ -1,6 +1,6 @@
 # llamafactory-lora-vllm
 
-> Workflow for LoRA fine-tuning with LLamaFactory and high-performance inference deployment via vLLM.
+> LoRA fine-tuning with LLaMA-Factory → high-performance inference deployment via vLLM.
 
 Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](docs/README.md) for architecture theory, training guides, and deployment docs.
 
@@ -79,7 +79,7 @@ CIFAR Data → Build Instructions → LoRA Train ─┬─ LLaMA API ───�
 ## Project Structure
 
 ```
-├── configs/          # LLamaFactory YAML configs + dataset registry
+├── configs/          # LLaMA-Factory YAML configs + dataset registry
 ├── scripts/          # Train & merge wrapper (model-agnostic)
 ├── data/             # CIFAR download & instruction building scripts
 ├── serve/            # vLLM serve startup (LoRA & merged modes)
@@ -201,7 +201,7 @@ Training and deployment use **separate Python environments** due to conflicting 
 
 ## References
 
-- [LLamaFactory](https://github.com/hiyouga/LLaMA-Factory)
+- [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory)
 - [vLLM](https://github.com/vllm-project/vllm)
 - [Qwen3.5](https://modelscope.cn/organization/qwen)
 
