@@ -2,6 +2,13 @@
 
 > 🦙 LoRA fine-tuning with LLaMA-Factory → high-performance inference deployment via vLLM.
 
+<p align="center">
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python 3.12+"></a>
+  <a href="https://github.com/zjykzj/llamafactory-lora-vllm/releases"><img src="https://img.shields.io/github/v/release/zjykzj/llamafactory-lora-vllm" alt="Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
+  <a href="https://deepwiki.com/zjykzj/llamafactory-lora-vllm"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
+</p>
+
 Fine-tuned on **CIFAR10 / CIFAR100** image classification tasks. See [docs/](docs/README.md) for architecture theory, training guides, and deployment docs.
 
 | Model | CIFAR10 Zero-shot | LoRA (200/cls) | LoRA (Full) | Notes |

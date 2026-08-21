@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Documentation
+
+- **README badges**: added Python 3.12+, Release, MIT License, and Ask DeepWiki badges to `README.md` and `README.zh-CN.md`.
+- **CLAUDE.md**: marked the `/release` skill as configured (bump `VERSION` + CHANGELOG.md, tag, GitHub Release) and added the `{{REPO_URL}}` variable.
+
 ## [0.2.0] — 2026-08-04
 
 ### Changed

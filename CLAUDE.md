@@ -97,7 +97,7 @@ Some workflows are defined as project skills in `.claude/skills/`. These MUST be
 | Trigger | Skill | Action |
 |---------|-------|--------|
 | User says "提交", "commit", "git commit" | **`/commit`** | Invoke `Skill("commit")` first, then follow its format |
-| User says "发布", "release", "bump version" | `/release` | ⏭️ Not configured yet — skip |
+| User says "发布", "release", "bump version" | `/release` | Invoke `Skill("release")` — bump `VERSION` + CHANGELOG.md, tag, GitHub Release |
 | User says "测试", "lint", "typecheck" | `/dev` | ⏭️ No test/lint commands in this project |
 
 **Rule: when user asks to commit, the first and only correct response is `Skill("commit")`. Never run `git commit` directly.**
@@ -109,4 +109,5 @@ Available skills without triggers (invoke on demand): `/claude` (CLAUDE.md guide
 ```
 {{AI_MODEL_NAME}} = DeepSeek-V4.0
 {{AI_MODEL_EMAIL}} = noreply@deepseek.com
+{{REPO_URL}} = https://github.com/zjykzj/llamafactory-lora-vllm
 ```
