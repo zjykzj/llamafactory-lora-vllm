@@ -56,6 +56,8 @@ python eval/eval_cifar10.py --model Qwen3.5-2B
 python eval/bench.py --num-samples 100  # latency & throughput benchmark
 ```
 
+This project has no tests or lint — skip those steps.
+
 ## Config file conventions
 
 All YAML configs live in `configs/`. Three config types per dataset:
@@ -90,29 +92,16 @@ Effective batch = `per_device_train_batch_size × gradient_accumulation_steps ×
 - `docs/training_config.md` — Training batch size / VRAM / multi-GPU configuration guide
 - `serve/README.md` — Serve script usage for all deployment modes
 
-## Git Operations
+## Maestro Configuration
 
-Commit and release workflows follow the conventions below. When the `maestro` plugin is installed, its skills trigger automatically (`maestro:commit`, `maestro:release`) and execute these workflows; without it, apply them manually. This project has no tests or lint — skip those steps.
-
-### Commit conventions
-
-- Conventional Commits format: `<type>(<scope>): <subject>` — types: feat/fix/docs/build/test/refactor/style/perf/ci/chore; imperative subject, ≤50 chars.
-- Every commit ends with a mandatory `Co-Authored-By: {{AI_MODEL_NAME}} <{{AI_MODEL_EMAIL}}>` line (values below).
-- User-facing commits update `CHANGELOG.md` in the same commit, under `## [Unreleased]`, in the subsection matching the type: feat→`### Added`, fix→`### Fixed`, docs→`### Documentation`, chore→`### Changed`. Entry style: `- **Bold summary**: description.` Subsection order: Added → Changed → Fixed → Removed → Security → Documentation. Breaking changes must be marked `(breaking)`.
-- Skip CHANGELOG for: `test`/`ci`/`build`/`style` commits, pure-internal `refactor`/`perf` commits, version bump commits, and commits that only touch `CHANGELOG.md`.
-
-### Release conventions
-
-1. Pick the bump from commits since the last tag: breaking change → MAJOR; any `feat` → MINOR; otherwise PATCH. Cross-check: empty `### Added` → PATCH.
-2. Update `VERSION` to `X.Y.Z`; rename `## [Unreleased]` → `## [X.Y.Z] — YYYY-MM-DD` in `CHANGELOG.md`, then add a fresh empty `## [Unreleased]` on top.
-3. Commit as `chore: bump version to X.Y.Z`, body = `[X.Y.Z]` section content (omitting `###` headers) + `Co-Authored-By` line.
-4. Tag and push: `git tag -a vX.Y.Z -m "vX.Y.Z"`, then `git push && git push --tags`.
-5. Create a GitHub Release for tag `vX.Y.Z`: title `vX.Y.Z: <one-line summary>`, body = the `[X.Y.Z]` CHANGELOG section + citation link to `{{REPO_URL}}/blob/main/CHANGELOG.md`.
-
-### AI Model Configuration
-
-```
 {{AI_MODEL_NAME}} = DeepSeek-V4.0
 {{AI_MODEL_EMAIL}} = noreply@deepseek.com
 {{REPO_URL}} = https://github.com/zjykzj/llamafactory-lora-vllm
-```
+{{PACKAGE_NAME}} = none
+
+### Version Bump Locations
+
+| # | File | Field |
+|---|------|-------|
+| 1 | `VERSION` | `X.Y.Z` single line |
+| 2 | `CHANGELOG.md` | `## [X.Y.Z] - YYYY-MM-DD` section header |
