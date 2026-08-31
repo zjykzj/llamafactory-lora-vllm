@@ -90,19 +90,24 @@ Effective batch = `per_device_train_batch_size × gradient_accumulation_steps ×
 - `docs/training_config.md` — Training batch size / VRAM / multi-GPU configuration guide
 - `serve/README.md` — Serve script usage for all deployment modes
 
-## Project Skills — MANDATORY invocation rules
+## Git Operations
 
-Some workflows are defined as project skills in `.claude/skills/`. These MUST be invoked before the corresponding action — do NOT perform the action directly.
+Commit and release workflows follow the conventions below. When the `maestro` plugin is installed, its skills trigger automatically (`maestro:commit`, `maestro:release`) and execute these workflows; without it, apply them manually. This project has no tests or lint — skip those steps.
 
-| Trigger | Skill | Action |
-|---------|-------|--------|
-| User says "提交", "commit", "git commit" | **`/commit`** | Invoke `Skill("commit")` first, then follow its format |
-| User says "发布", "release", "bump version" | `/release` | Invoke `Skill("release")` — bump `VERSION` + CHANGELOG.md, tag, GitHub Release |
-| User says "测试", "lint", "typecheck" | `/dev` | ⏭️ No test/lint commands in this project |
+### Commit conventions
 
-**Rule: when user asks to commit, the first and only correct response is `Skill("commit")`. Never run `git commit` directly.**
+- Conventional Commits format: `<type>(<scope>): <subject>` — types: feat/fix/docs/build/test/refactor/style/perf/ci/chore; imperative subject, ≤50 chars.
+- Every commit ends with a mandatory `Co-Authored-By: {{AI_MODEL_NAME}} <{{AI_MODEL_EMAIL}}>` line (values below).
+- User-facing commits update `CHANGELOG.md` in the same commit, under `## [Unreleased]`, in the subsection matching the type: feat→`### Added`, fix→`### Fixed`, docs→`### Documentation`, chore→`### Changed`. Entry style: `- **Bold summary**: description.` Subsection order: Added → Changed → Fixed → Removed → Security → Documentation. Breaking changes must be marked `(breaking)`.
+- Skip CHANGELOG for: `test`/`ci`/`build`/`style` commits, pure-internal `refactor`/`perf` commits, version bump commits, and commits that only touch `CHANGELOG.md`.
 
-Available skills without triggers (invoke on demand): `/claude` (CLAUDE.md guide), `/spec` (spec authoring).
+### Release conventions
+
+1. Pick the bump from commits since the last tag: breaking change → MAJOR; any `feat` → MINOR; otherwise PATCH. Cross-check: empty `### Added` → PATCH.
+2. Update `VERSION` to `X.Y.Z`; rename `## [Unreleased]` → `## [X.Y.Z] — YYYY-MM-DD` in `CHANGELOG.md`, then add a fresh empty `## [Unreleased]` on top.
+3. Commit as `chore: bump version to X.Y.Z`, body = `[X.Y.Z]` section content (omitting `###` headers) + `Co-Authored-By` line.
+4. Tag and push: `git tag -a vX.Y.Z -m "vX.Y.Z"`, then `git push && git push --tags`.
+5. Create a GitHub Release for tag `vX.Y.Z`: title `vX.Y.Z: <one-line summary>`, body = the `[X.Y.Z]` CHANGELOG section + citation link to `{{REPO_URL}}/blob/main/CHANGELOG.md`.
 
 ### AI Model Configuration
 

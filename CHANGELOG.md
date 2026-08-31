@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **README badges**: added Python 3.12+, Release, MIT License, and Ask DeepWiki badges to `README.md` and `README.zh-CN.md`.
 - **CLAUDE.md**: marked the `/release` skill as configured (bump `VERSION` + CHANGELOG.md, tag, GitHub Release) and added the `{{REPO_URL}}` variable.
+- **CLAUDE.md**: replaced the mandatory skill-invocation table with self-contained commit/release conventions — skills are now optional accelerators via the `maestro` plugin, and the conventions apply with or without it.
 
 ## [0.2.0] — 2026-08-04
 
