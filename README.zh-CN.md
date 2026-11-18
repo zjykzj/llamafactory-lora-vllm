@@ -6,7 +6,7 @@
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python 3.12+"></a>
   <a href="https://github.com/zjykzj/llamafactory-lora-vllm/releases"><img src="https://img.shields.io/github/v/release/zjykzj/llamafactory-lora-vllm" alt="Release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
-  <a href="https://deepwiki.com/zjykzj/llamafactory-lora-vllm"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
+  <a href="https://deepwiki.com/zjykzj/llamafactory-lora-vllm"><img src="https://img.shields.io/badge/Ask-DeepWiki-A78BFA" alt="Ask DeepWiki"></a>
 </p>
 
 在 **CIFAR10 / CIFAR100** 图像分类任务上进行微调。架构理论、训练指南与部署文档见 [docs/](docs/README.md)。

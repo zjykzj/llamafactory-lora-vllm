@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **DeepWiki badge replaced with a static shields.io badge**: DeepWiki serves `badge.svg` from Vercel behind a bot-protection challenge, so GitHub's image proxy receives HTTP 429 and renders the badge broken; `README.md` and `README.zh-CN.md` now use a shields.io badge (soft violet) with the wiki link unchanged.
 - **README badges**: added Python 3.12+, Release, MIT License, and Ask DeepWiki badges to `README.md` and `README.zh-CN.md`.
 - **CLAUDE.md**: marked the `/release` skill as configured (bump `VERSION` + CHANGELOG.md, tag, GitHub Release) and added the `{{REPO_URL}}` variable.
 - **CLAUDE.md**: replaced the mandatory skill-invocation table with self-contained commit/release conventions — skills are now optional accelerators via the `maestro` plugin, and the conventions apply with or without it.
